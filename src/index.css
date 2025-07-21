@@ -1,0 +1,57 @@
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Fonte base */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Remove estilos padrão de links */
+a {
+  text-decoration: none;
+}
+
+/* Melhor renderização de imagens */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Melhora a acessibilidade de botões */
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+/* Foco personalizado para melhor acessibilidade */
+*:focus {
+  outline: 2px solid #38a169;
+  outline-offset: 2px;
+}
+
+/* Scrollbar personalizada (webkit) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
