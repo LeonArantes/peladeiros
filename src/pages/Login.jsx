@@ -40,25 +40,77 @@ const Login = () => {
     return phoneRegex.test(phone) || "Formato inválido. Use: (11) 99999-9999";
   };
 
-  // Função para validar data de nascimento
-  const validateBirthDate = (date) => {
-    const today = new Date();
-    const birthDate = new Date(date);
-    const age = today.getFullYear() - birthDate.getFullYear();
+  // Função para formatar data enquanto digita (dd/mm/yyyy)
+  const formatDate = (value) => {
+    // Remove tudo que não é número
+    const numbers = value.replace(/\D/g, "");
 
-    if (birthDate > today) {
+    // Aplica a máscara dd/mm/yyyy
+    if (numbers.length <= 2) {
+      return numbers;
+    } else if (numbers.length <= 4) {
+      return `${numbers.slice(0, 2)}/${numbers.slice(2)}`;
+    } else {
+      return `${numbers.slice(0, 2)}/${numbers.slice(2, 4)}/${numbers.slice(
+        4,
+        8
+      )}`;
+    }
+  };
+
+  // Função para validar data de nascimento no formato dd/mm/yyyy
+  const validateBirthDate = (dateString) => {
+    // Verificar formato dd/mm/yyyy
+    const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+    if (!dateRegex.test(dateString)) {
+      return "Formato inválido. Use: dd/mm/yyyy";
+    }
+
+    // Extrair dia, mês e ano
+    const [day, month, year] = dateString.split("/").map(Number);
+
+    // Validar se é uma data válida
+    const date = new Date(year, month - 1, day);
+
+    if (
+      date.getDate() !== day ||
+      date.getMonth() !== month - 1 ||
+      date.getFullYear() !== year
+    ) {
+      return "Data inválida";
+    }
+
+    // Validar idade
+    const today = new Date();
+    const age = today.getFullYear() - year;
+    const monthDiff = today.getMonth() - (month - 1);
+    const dayDiff = today.getDate() - day;
+
+    if (date > today) {
       return "Data de nascimento não pode ser no futuro";
     }
 
-    if (age < 16) {
+    // Calcular idade exata
+    let finalAge = age;
+    if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+      finalAge--;
+    }
+
+    if (finalAge < 16) {
       return "Você deve ter pelo menos 16 anos";
     }
 
-    if (age > 100) {
+    if (finalAge > 100) {
       return "Data de nascimento inválida";
     }
 
     return true;
+  };
+
+  // Função para converter data dd/mm/yyyy para formato do backend
+  const convertDateToBackendFormat = (dateString) => {
+    const [day, month, year] = dateString.split("/");
+    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
   };
 
   // Função para formatar telefone enquanto digita
@@ -85,7 +137,7 @@ const Login = () => {
     try {
       const userData = {
         telefone: data.telefone,
-        dataNascimento: data.dataNascimento,
+        dataNascimento: convertDateToBackendFormat(data.dataNascimento),
       };
 
       // Usar o contexto de autenticação com await para aguardar o resultado
@@ -181,7 +233,8 @@ const Login = () => {
                       Data de Nascimento
                     </FormLabel>
                     <Input
-                      type="date"
+                      type="text"
+                      placeholder="dd/mm/yyyy"
                       size="lg"
                       bg="white"
                       border="1px"
@@ -194,7 +247,11 @@ const Login = () => {
                       {...register("dataNascimento", {
                         required: "Data de nascimento é obrigatória",
                         validate: validateBirthDate,
+                        onChange: (e) => {
+                          e.target.value = formatDate(e.target.value);
+                        },
                       })}
+                      maxLength={10}
                     />
                     <FormErrorMessage>
                       {errors.dataNascimento && errors.dataNascimento.message}
