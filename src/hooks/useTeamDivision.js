@@ -37,8 +37,8 @@ export const useTeamDivision = (match, attendanceList = []) => {
         setDivision(divisionData);
         setLoading(false);
 
-        // Se não há divisão, mostrar formulário de criação automaticamente
-        if (!divisionData && confirmedPlayers.length > 0) {
+        // Se não há divisão, mostrar formulário de criação automaticamente apenas para admins
+        if (!divisionData && confirmedPlayers.length > 0 && isAdmin) {
           setShowCreateForm(true);
         } else {
           setShowCreateForm(false);
@@ -47,7 +47,7 @@ export const useTeamDivision = (match, attendanceList = []) => {
     );
 
     return unsubscribe;
-  }, [matchId, confirmedPlayers.length]);
+  }, [matchId, confirmedPlayers.length, isAdmin]);
 
   /**
    * Cria ou atualiza a divisão de times
@@ -155,6 +155,14 @@ export const useTeamDivision = (match, attendanceList = []) => {
   }, [user, division, isAdmin]);
 
   /**
+   * Verifica se o usuário pode criar uma nova divisão
+   */
+  const canCreateDivision = useCallback(() => {
+    if (!user) return false;
+    return isAdmin;
+  }, [user, isAdmin]);
+
+  /**
    * Gera divisão automática balanceada
    */
   const generateBalancedDivision = useCallback(() => {
@@ -258,9 +266,23 @@ export const useTeamDivision = (match, attendanceList = []) => {
   /**
    * Controla a exibição do formulário de criação
    */
-  const toggleCreateForm = useCallback((show) => {
-    setShowCreateForm(show);
-  }, []);
+  const toggleCreateForm = useCallback(
+    (show) => {
+      // Se está tentando mostrar o formulário, verificar permissões
+      if (show) {
+        // Se há divisão existente, verificar se pode editar
+        if (division && !canEditDivision()) {
+          return;
+        }
+        // Se não há divisão, verificar se pode criar
+        if (!division && !canCreateDivision()) {
+          return;
+        }
+      }
+      setShowCreateForm(show);
+    },
+    [division, canEditDivision, canCreateDivision]
+  );
 
   return {
     // Estados
@@ -282,5 +304,6 @@ export const useTeamDivision = (match, attendanceList = []) => {
     // Utilitários
     canEditDivision,
     generateBalancedDivision,
+    canCreateDivision,
   };
 };

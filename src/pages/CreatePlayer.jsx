@@ -22,18 +22,61 @@ import {
   TagLabel,
   IconButton,
   FormErrorMessage,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
+  Center,
 } from "@chakra-ui/react";
 import { useForm, Controller } from "react-hook-form";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiPlus } from "react-icons/fi";
 import userService from "../services/userService";
+import { useAuth } from "../context/AuthContext";
 
 const CreatePlayer = () => {
   const [loading, setLoading] = useState(false);
   const [selectedPositions, setSelectedPositions] = useState([]);
   const toast = useToast();
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
+  const userIsAdmin = isAdmin();
+
+  // Verificar se o usuário é admin ao carregar a página
+  useEffect(() => {
+    if (!userIsAdmin) {
+      toast({
+        title: "Acesso negado",
+        description: "Apenas administradores podem criar jogadores.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      navigate("/players");
+    }
+  }, [userIsAdmin, navigate, toast]);
+
+  // Se não for admin, mostrar mensagem de erro
+  if (!userIsAdmin) {
+    return (
+      <Box minH="100vh" bg="gray.50" pb="80px">
+        <Container maxW="container.md" px={4} py={6}>
+          <Center>
+            <Alert status="error" borderRadius="lg" maxW="md">
+              <AlertIcon />
+              <Box>
+                <AlertTitle>Acesso Negado!</AlertTitle>
+                <AlertDescription>
+                  Apenas administradores podem criar jogadores.
+                </AlertDescription>
+              </Box>
+            </Alert>
+          </Center>
+        </Container>
+      </Box>
+    );
+  }
 
   const availablePositions = [
     "Goleiro",

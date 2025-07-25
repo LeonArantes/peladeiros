@@ -12,6 +12,8 @@ import {
   VStack,
   useToast,
   Container,
+  Spinner,
+  Center,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { useNavigate, Navigate } from "react-router-dom";
@@ -141,7 +143,6 @@ const Login = () => {
       };
 
       // Usar o contexto de autenticação com await para aguardar o resultado
-
       await login(userData, () => {
         toast({
           title: "Login realizado com sucesso!",
@@ -171,10 +172,24 @@ const Login = () => {
   if (isLoading) {
     return (
       <Box minH="100vh" bg="gray.50" display="flex" alignItems="center">
-        <Container maxW="md">
-          <Card maxW="md" mx="auto" boxShadow="xl" borderRadius="2xl">
-            <CardBody p={8} textAlign="center">
-              <Text>Carregando...</Text>
+        <Container maxW={{ base: "full", sm: "md" }} px={{ base: 4, md: 6 }}>
+          <Card
+            maxW="md"
+            mx="auto"
+            borderRadius="lg"
+            boxShadow="sm"
+            border="1px solid"
+            borderColor="gray.200"
+          >
+            <CardBody p={{ base: 6, md: 8 }}>
+              <Center>
+                <VStack spacing={4}>
+                  <Spinner size="xl" color="primary.900" />
+                  <Text color="gray.600" fontSize={{ base: "sm", md: "md" }}>
+                    Carregando...
+                  </Text>
+                </VStack>
+              </Center>
             </CardBody>
           </Card>
         </Container>
@@ -184,35 +199,61 @@ const Login = () => {
 
   return (
     <Box minH="100vh" bg="gray.50" display="flex" alignItems="center">
-      <Container maxW="md">
-        <Card maxW="md" mx="auto" boxShadow="xl" borderRadius="2xl">
-          <CardBody p={8}>
-            <VStack spacing={6} align="stretch">
+      <Container
+        maxW={{ base: "full", sm: "md" }}
+        px={{ base: 4, md: 6 }}
+        py={{ base: 4, md: 6 }}
+      >
+        <Card
+          maxW="md"
+          mx="auto"
+          borderRadius="lg"
+          boxShadow="sm"
+          border="1px solid"
+          borderColor="gray.200"
+        >
+          <CardBody p={{ base: 6, md: 8 }}>
+            <VStack spacing={{ base: 5, md: 6 }} align="stretch">
               <Box textAlign="center">
-                <Heading as="h1" size="xl" color="gray.800" mb={2}>
+                <Heading
+                  as="h1"
+                  size={{ base: "lg", md: "xl" }}
+                  color="primary.900"
+                  mb={{ base: 2, md: 3 }}
+                  lineHeight="shorter"
+                >
                   Entrar
                 </Heading>
-                <Text color="gray.500" fontSize="md">
+                <Text
+                  color="gray.600"
+                  fontSize={{ base: "sm", md: "md" }}
+                  lineHeight="base"
+                >
                   Entre com seu telefone e data de nascimento
                 </Text>
               </Box>
 
               <form onSubmit={handleSubmit(onSubmit)}>
-                <VStack spacing={6} align="stretch">
+                <VStack spacing={{ base: 4, md: 5 }} align="stretch">
                   <FormControl isInvalid={errors.telefone}>
-                    <FormLabel color="gray.700" fontWeight="semibold">
+                    <FormLabel
+                      color="primary.900"
+                      fontWeight="semibold"
+                      fontSize={{ base: "sm", md: "md" }}
+                    >
                       Telefone
                     </FormLabel>
                     <Input
                       placeholder="(11) 99999-9999"
-                      size="lg"
+                      size={{ base: "md", md: "lg" }}
                       bg="white"
-                      border="1px"
-                      borderColor="gray.300"
-                      _hover={{ borderColor: "gray.400" }}
+                      border="1px solid"
+                      borderColor="gray.200"
+                      borderRadius="lg"
+                      _hover={{ borderColor: "gray.300" }}
                       _focus={{
-                        borderColor: "green.500",
-                        boxShadow: "0 0 0 1px #38A169",
+                        borderColor: "primary.900",
+                        boxShadow: "0 0 0 1px primary.900",
                       }}
                       {...register("telefone", {
                         required: "Telefone é obrigatório",
@@ -229,20 +270,25 @@ const Login = () => {
                   </FormControl>
 
                   <FormControl isInvalid={errors.dataNascimento}>
-                    <FormLabel color="gray.700" fontWeight="semibold">
+                    <FormLabel
+                      color="primary.900"
+                      fontWeight="semibold"
+                      fontSize={{ base: "sm", md: "md" }}
+                    >
                       Data de Nascimento
                     </FormLabel>
                     <Input
                       type="text"
                       placeholder="dd/mm/yyyy"
-                      size="lg"
+                      size={{ base: "md", md: "lg" }}
                       bg="white"
-                      border="1px"
-                      borderColor="gray.300"
-                      _hover={{ borderColor: "gray.400" }}
+                      border="1px solid"
+                      borderColor="gray.200"
+                      borderRadius="lg"
+                      _hover={{ borderColor: "gray.300" }}
                       _focus={{
-                        borderColor: "green.500",
-                        boxShadow: "0 0 0 1px #38A169",
+                        borderColor: "primary.900",
+                        boxShadow: "0 0 0 1px primary.900",
                       }}
                       {...register("dataNascimento", {
                         required: "Data de nascimento é obrigatória",
@@ -260,16 +306,17 @@ const Login = () => {
 
                   <Button
                     type="submit"
-                    size="lg"
-                    bg="black"
+                    size={{ base: "md", md: "lg" }}
+                    bg="primary.900"
                     color="white"
-                    _hover={{ bg: "gray.800" }}
-                    _active={{ bg: "gray.900" }}
+                    _hover={{ bg: "primary.800" }}
+                    _active={{ bg: "primary.800" }}
                     isLoading={isSubmittingForm || isSubmitting}
                     loadingText="Entrando..."
                     borderRadius="lg"
                     fontWeight="semibold"
-                    mt={4}
+                    mt={{ base: 2, md: 4 }}
+                    w="full"
                   >
                     Entrar
                   </Button>

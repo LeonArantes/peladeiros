@@ -613,7 +613,14 @@ const MatchDetails = ({ match, division, onMatchUpdate }) => {
                       bg="gray.50"
                       borderRadius="lg"
                     >
-                      <VStack align="start" spacing={1} flex={1} minW={0}>
+                      <VStack
+                        align="center"
+                        justify="space-between"
+                        flex={1}
+                        minW={0}
+                        w="100%"
+                        flexDirection={{ base: "row", md: "row" }}
+                      >
                         <Text
                           fontWeight="semibold"
                           fontSize={{ base: "sm", md: "md" }}
@@ -690,7 +697,14 @@ const MatchDetails = ({ match, division, onMatchUpdate }) => {
                       bg="gray.50"
                       borderRadius="lg"
                     >
-                      <VStack align="start" spacing={1} flex={1} minW={0}>
+                      <VStack
+                        align="center"
+                        justify="space-between"
+                        flex={1}
+                        minW={0}
+                        flexDirection={{ base: "row", md: "row" }}
+                        w="100%"
+                      >
                         <Text
                           fontWeight="semibold"
                           fontSize={{ base: "sm", md: "md" }}

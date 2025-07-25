@@ -61,6 +61,7 @@ const TeamDivision = ({ match, attendanceList }) => {
     deleteDivision,
     toggleCreateForm,
     canEditDivision,
+    canCreateDivision,
     generateBalancedDivision,
   } = useTeamDivision(match, attendanceList);
 
@@ -129,7 +130,7 @@ const TeamDivision = ({ match, attendanceList }) => {
           </HStack>
         )}
 
-        {!hasDivision && !showCreateForm && (
+        {!hasDivision && !showCreateForm && canCreateDivision() && (
           <Button
             leftIcon={<FiPlus size={14} />}
             bg="primary.900"
@@ -152,7 +153,7 @@ const TeamDivision = ({ match, attendanceList }) => {
       )}
 
       {/* Formulário de Criação/Edição */}
-      {showCreateForm && (
+      {showCreateForm && (canCreateDivision() || canEditDivision()) && (
         <CreateDivisionForm
           confirmedPlayers={confirmedPlayers}
           onCreateDivision={createDivision}
@@ -173,14 +174,18 @@ const TeamDivision = ({ match, attendanceList }) => {
               textAlign="center"
               fontSize={{ base: "md", md: "lg" }}
             >
-              Nenhuma escalação criada ainda
+              {canCreateDivision()
+                ? "Nenhuma escalação criada ainda"
+                : "Aguardando escalação"}
             </Text>
             <Text
               fontSize={{ base: "sm", md: "md" }}
               color="gray.400"
               textAlign="center"
             >
-              Crie a divisão dos times para organizar a partida
+              {canCreateDivision()
+                ? "Crie a divisão dos times para organizar a partida"
+                : "A escalação será criada por um administrador"}
             </Text>
           </VStack>
         </Center>

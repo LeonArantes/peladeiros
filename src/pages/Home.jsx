@@ -25,6 +25,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { isAdmin } = useAuth();
+  const userIsAdmin = isAdmin();
 
   const cardBg = useColorModeValue("white", "gray.800");
 
@@ -85,7 +86,7 @@ const Home = () => {
               </Heading>
             </Box>
 
-            {isAdmin && (
+            {userIsAdmin && (
               <Button
                 bg="primary.900"
                 color="white"

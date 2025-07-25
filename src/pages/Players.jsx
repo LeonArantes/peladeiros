@@ -76,7 +76,8 @@ const Players = () => {
   const [loading, setLoading] = useState(true);
   const [players, setPlayers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, isAdmin } = useAuth();
+  const userIsAdmin = isAdmin();
   const navigate = useNavigate();
 
   const fetchPlayers = async () => {
@@ -145,30 +146,32 @@ const Players = () => {
             </Text>
           </Box>
 
-          <Button
-            bg="primary.900"
-            color="white"
-            size={{ base: "md", md: "lg" }}
-            borderRadius="full"
-            w={{ base: "48px", md: "56px" }}
-            h={{ base: "48px", md: "56px" }}
-            minW="auto"
-            p={0}
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            _hover={{
-              bg: "primary.800",
-              transform: "scale(1.05)",
-            }}
-            _active={{
-              transform: "scale(0.95)",
-            }}
-            transition="all 0.2s"
-            onClick={() => navigate("/create-player")}
-          >
-            <FiPlus size={{ base: 20, md: 24 }} />
-          </Button>
+          {userIsAdmin && (
+            <Button
+              bg="primary.900"
+              color="white"
+              size={{ base: "md", md: "lg" }}
+              borderRadius="full"
+              w={{ base: "48px", md: "56px" }}
+              h={{ base: "48px", md: "56px" }}
+              minW="auto"
+              p={0}
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              _hover={{
+                bg: "primary.800",
+                transform: "scale(1.05)",
+              }}
+              _active={{
+                transform: "scale(0.95)",
+              }}
+              transition="all 0.2s"
+              onClick={() => navigate("/create-player")}
+            >
+              <FiPlus size={{ base: 20, md: 24 }} />
+            </Button>
+          )}
         </HStack>
 
         {/* Search Bar */}
