@@ -117,55 +117,79 @@ const CreateMatch = () => {
   };
 
   return (
-    <Box minH="100vh" bg="gray.50" pb="80px">
-      <Container maxW="container.xl" px={4} py={6}>
-        <VStack spacing={6} align="stretch">
+    <Box minH="100vh" bg="gray.50" pb={{ base: "24", md: "80px" }}>
+      <Container
+        maxW={{
+          base: "full",
+          sm: "container.sm",
+          md: "container.md",
+          lg: "container.xl",
+        }}
+        px={{ base: 4, md: 6 }}
+        py={{ base: 4, md: 6 }}
+      >
+        <VStack spacing={{ base: 4, md: 6 }} align="stretch">
           {/* Header */}
-          <HStack spacing={3} mb={4}>
+          <HStack spacing={{ base: 3, md: 4 }} mb={{ base: 2, md: 4 }}>
             <IconButton
-              icon={<FiArrowLeft />}
+              icon={<FiArrowLeft size={18} />}
               variant="ghost"
-              size="lg"
+              size={{ base: "md", md: "lg" }}
               aria-label="Voltar"
               onClick={() => navigate("/")}
+              borderRadius="lg"
+              color="primary.900"
+              _hover={{ bg: "primary.50" }}
             />
             <Box>
-              <Heading size="lg" color="gray.800">
+              <Heading
+                size={{ base: "md", md: "lg" }}
+                color="primary.900"
+                lineHeight="shorter"
+              >
                 Nova Pelada
               </Heading>
+              <Text
+                color="gray.600"
+                fontSize={{ base: "sm", md: "md" }}
+                lineHeight="base"
+              >
+                Configure os detalhes da nova partida
+              </Text>
             </Box>
           </HStack>
 
           {/* Formulário */}
-          <Card borderRadius="2xl" boxShadow="sm">
-            <CardBody p={6}>
-              <VStack spacing={6} align="stretch">
-                <Box textAlign="center" mb={4}>
-                  <Heading size="md" color="gray.800" mb={2}>
-                    Criar Pelada
-                  </Heading>
-                  <Text color="gray.500" fontSize="sm">
-                    Configure os detalhes da nova pelada
-                  </Text>
-                </Box>
-
+          <Card
+            borderRadius="lg"
+            boxShadow="sm"
+            border="1px solid"
+            borderColor="gray.200"
+          >
+            <CardBody p={{ base: 4, md: 6 }}>
+              <VStack spacing={{ base: 4, md: 6 }} align="stretch">
                 <form onSubmit={handleSubmit(onSubmit)}>
-                  <VStack spacing={6} align="stretch">
+                  <VStack spacing={{ base: 4, md: 6 }} align="stretch">
                     {/* Local */}
                     <FormControl isInvalid={errors.local}>
-                      <FormLabel color="gray.700" fontWeight="semibold">
+                      <FormLabel
+                        color="primary.900"
+                        fontWeight="semibold"
+                        fontSize={{ base: "sm", md: "md" }}
+                      >
                         Local
                       </FormLabel>
                       <Select
                         placeholder="Selecione o local"
-                        size="lg"
+                        size={{ base: "md", md: "lg" }}
                         bg="white"
-                        border="1px"
-                        borderColor="gray.300"
-                        _hover={{ borderColor: "gray.400" }}
+                        border="1px solid"
+                        borderColor="gray.200"
+                        borderRadius="lg"
+                        _hover={{ borderColor: "gray.300" }}
                         _focus={{
-                          borderColor: "green.500",
-                          boxShadow: "0 0 0 1px #38A169",
+                          borderColor: "primary.900",
+                          boxShadow: "0 0 0 1px primary.900",
                         }}
                         {...register("local", {
                           required: "Local é obrigatório",
@@ -184,20 +208,25 @@ const CreateMatch = () => {
 
                     {/* Data e Horário */}
                     <FormControl isInvalid={errors.date || errors.time}>
-                      <FormLabel color="gray.700" fontWeight="semibold">
+                      <FormLabel
+                        color="primary.900"
+                        fontWeight="semibold"
+                        fontSize={{ base: "sm", md: "md" }}
+                      >
                         Data e Horário da Pelada
                       </FormLabel>
-                      <HStack spacing={3}>
+                      <HStack spacing={{ base: 2, md: 3 }}>
                         <Input
                           type="date"
-                          size="lg"
+                          size={{ base: "md", md: "lg" }}
                           bg="white"
-                          border="1px"
-                          borderColor="gray.300"
-                          _hover={{ borderColor: "gray.400" }}
+                          border="1px solid"
+                          borderColor="gray.200"
+                          borderRadius="lg"
+                          _hover={{ borderColor: "gray.300" }}
                           _focus={{
-                            borderColor: "green.500",
-                            boxShadow: "0 0 0 1px #38A169",
+                            borderColor: "primary.900",
+                            boxShadow: "0 0 0 1px primary.900",
                           }}
                           {...register("date", {
                             required: "Data é obrigatória",
@@ -205,14 +234,15 @@ const CreateMatch = () => {
                         />
                         <Input
                           type="time"
-                          size="lg"
+                          size={{ base: "md", md: "lg" }}
                           bg="white"
-                          border="1px"
-                          borderColor="gray.300"
-                          _hover={{ borderColor: "gray.400" }}
+                          border="1px solid"
+                          borderColor="gray.200"
+                          borderRadius="lg"
+                          _hover={{ borderColor: "gray.300" }}
                           _focus={{
-                            borderColor: "green.500",
-                            boxShadow: "0 0 0 1px #38A169",
+                            borderColor: "primary.900",
+                            boxShadow: "0 0 0 1px primary.900",
                           }}
                           {...register("time", {
                             required: "Horário é obrigatório",
@@ -227,7 +257,11 @@ const CreateMatch = () => {
 
                     {/* Vagas Totais */}
                     <FormControl isInvalid={errors.vagasTotais}>
-                      <FormLabel color="gray.700" fontWeight="semibold">
+                      <FormLabel
+                        color="primary.900"
+                        fontWeight="semibold"
+                        fontSize={{ base: "sm", md: "md" }}
+                      >
                         Vagas Totais
                       </FormLabel>
                       <Controller
@@ -242,18 +276,19 @@ const CreateMatch = () => {
                         render={({ field }) => (
                           <NumberInput
                             {...field}
-                            size="lg"
+                            size={{ base: "md", md: "lg" }}
                             min={2}
                             max={50}
                             bg="white"
                           >
                             <NumberInputField
-                              border="1px"
-                              borderColor="gray.300"
-                              _hover={{ borderColor: "gray.400" }}
+                              border="1px solid"
+                              borderColor="gray.200"
+                              borderRadius="lg"
+                              _hover={{ borderColor: "gray.300" }}
                               _focus={{
-                                borderColor: "green.500",
-                                boxShadow: "0 0 0 1px #38A169",
+                                borderColor: "primary.900",
+                                boxShadow: "0 0 0 1px primary.900",
                               }}
                             />
                             <NumberInputStepper>
@@ -270,7 +305,11 @@ const CreateMatch = () => {
 
                     {/* Jogadores por Time */}
                     <FormControl isInvalid={errors.jogadoresPorTime}>
-                      <FormLabel color="gray.700" fontWeight="semibold">
+                      <FormLabel
+                        color="primary.900"
+                        fontWeight="semibold"
+                        fontSize={{ base: "sm", md: "md" }}
+                      >
                         Jogadores por Time
                       </FormLabel>
                       <Controller
@@ -292,18 +331,19 @@ const CreateMatch = () => {
                         render={({ field }) => (
                           <NumberInput
                             {...field}
-                            size="lg"
+                            size={{ base: "md", md: "lg" }}
                             min={1}
                             max={25}
                             bg="white"
                           >
                             <NumberInputField
-                              border="1px"
-                              borderColor="gray.300"
-                              _hover={{ borderColor: "gray.400" }}
+                              border="1px solid"
+                              borderColor="gray.200"
+                              borderRadius="lg"
+                              _hover={{ borderColor: "gray.300" }}
                               _focus={{
-                                borderColor: "green.500",
-                                boxShadow: "0 0 0 1px #38A169",
+                                borderColor: "primary.900",
+                                boxShadow: "0 0 0 1px primary.900",
                               }}
                             />
                             <NumberInputStepper>
@@ -325,24 +365,33 @@ const CreateMatch = () => {
                         errors.dataInicioLista || errors.horarioInicioLista
                       }
                     >
-                      <FormLabel color="gray.700" fontWeight="semibold">
+                      <FormLabel
+                        color="primary.900"
+                        fontWeight="semibold"
+                        fontSize={{ base: "sm", md: "md" }}
+                      >
                         Data e Horário de Início da Lista de Presença
                       </FormLabel>
-                      <Text fontSize="sm" color="gray.500" mb={2}>
+                      <Text
+                        fontSize={{ base: "xs", md: "sm" }}
+                        color="gray.500"
+                        mb={2}
+                      >
                         Automaticamente definido para 3 dias antes da pelada às
                         18h
                       </Text>
-                      <HStack spacing={3}>
+                      <HStack spacing={{ base: 2, md: 3 }}>
                         <Input
                           type="date"
-                          size="lg"
+                          size={{ base: "md", md: "lg" }}
                           bg="gray.100"
-                          border="1px"
-                          borderColor="gray.300"
-                          _hover={{ borderColor: "gray.400" }}
+                          border="1px solid"
+                          borderColor="gray.200"
+                          borderRadius="lg"
+                          _hover={{ borderColor: "gray.300" }}
                           _focus={{
-                            borderColor: "green.500",
-                            boxShadow: "0 0 0 1px #38A169",
+                            borderColor: "primary.900",
+                            boxShadow: "0 0 0 1px primary.900",
                           }}
                           {...register("dataInicioLista", {
                             required: "Data de início é obrigatória",
@@ -350,14 +399,15 @@ const CreateMatch = () => {
                         />
                         <Input
                           type="time"
-                          size="lg"
+                          size={{ base: "md", md: "lg" }}
                           bg="gray.100"
-                          border="1px"
-                          borderColor="gray.300"
-                          _hover={{ borderColor: "gray.400" }}
+                          border="1px solid"
+                          borderColor="gray.200"
+                          borderRadius="lg"
+                          _hover={{ borderColor: "gray.300" }}
                           _focus={{
-                            borderColor: "green.500",
-                            boxShadow: "0 0 0 1px #38A169",
+                            borderColor: "primary.900",
+                            boxShadow: "0 0 0 1px primary.900",
                           }}
                           {...register("horarioInicioLista", {
                             required: "Horário de início é obrigatório",
@@ -375,16 +425,16 @@ const CreateMatch = () => {
                     {/* Botão de Criar */}
                     <Button
                       type="submit"
-                      size="lg"
-                      bg="black"
+                      size={{ base: "md", md: "lg" }}
+                      bg="primary.900"
                       color="white"
-                      _hover={{ bg: "gray.800" }}
-                      _active={{ bg: "gray.900" }}
+                      _hover={{ bg: "primary.800" }}
+                      _active={{ bg: "primary.800" }}
                       isLoading={isCreating || isSubmitting}
                       loadingText="Criando..."
                       borderRadius="lg"
                       fontWeight="semibold"
-                      mt={6}
+                      mt={{ base: 4, md: 6 }}
                     >
                       Criar Pelada
                     </Button>

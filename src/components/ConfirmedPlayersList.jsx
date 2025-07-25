@@ -101,22 +101,31 @@ const ConfirmedPlayersList = ({ match }) => {
   if (loading) {
     return (
       <Center py={8}>
-        <Spinner color="black" />
+        <Spinner color="primary.900" />
       </Center>
     );
   }
 
   return (
-    <VStack spacing={6} align="stretch">
+    <VStack spacing={{ base: 4, md: 5 }} align="stretch">
       {/* Header com contador */}
-      <Flex justify="space-between" align="center">
-        <Text fontSize="lg" fontWeight="semibold" color="gray.800">
+      <Flex
+        justify="space-between"
+        align="center"
+        direction={{ base: "row", sm: "row" }}
+        gap={{ base: 2, sm: 2 }}
+      >
+        <Text
+          fontSize={{ base: "md", md: "lg" }}
+          fontWeight="semibold"
+          color="primary.900"
+        >
           Lista de Confirmados
         </Text>
         <Badge
           colorScheme={isListFull ? "red" : "green"}
-          variant="subtle"
-          fontSize="sm"
+          variant="solid"
+          fontSize="xs"
           px={3}
           py={1}
           borderRadius="full"
@@ -126,16 +135,16 @@ const ConfirmedPlayersList = ({ match }) => {
       </Flex>
 
       {/* Estatísticas */}
-      <HStack spacing={4} justify="center">
-        <Badge colorScheme="green" variant="outline">
+      <HStack spacing={{ base: 2, md: 3 }} justify="center" flexWrap="wrap">
+        <Badge colorScheme="green" variant="outline" fontSize="xs">
           {confirmedCount} Confirmados
         </Badge>
-        <Badge colorScheme="blue" variant="outline">
-          {maxPlayers - confirmedCount} Vagas Livres
+        <Badge colorScheme="blue" variant="outline" fontSize="xs">
+          {maxPlayers - confirmedCount} Vagas
         </Badge>
         {waitingCount > 0 && (
-          <Badge colorScheme="orange" variant="outline">
-            {waitingCount} Em Espera
+          <Badge colorScheme="orange" variant="outline" fontSize="xs">
+            {waitingCount} Espera
           </Badge>
         )}
       </HStack>
@@ -143,42 +152,61 @@ const ConfirmedPlayersList = ({ match }) => {
       {/* Botão de ação */}
       {canJoin && match?.status !== "Finalizada" ? (
         <Button
-          leftIcon={<FiUserPlus />}
-          colorScheme="green"
+          leftIcon={<FiUserPlus size={16} />}
+          bg="primary.900"
+          color="white"
           isLoading={isJoining}
           loadingText="Confirmando..."
           onClick={joinMatch}
-          size="md"
+          size={{ base: "sm", md: "md" }}
+          borderRadius="lg"
+          _hover={{
+            bg: "primary.800",
+          }}
         >
           Confirmar Presença
         </Button>
       ) : canLeave && match?.status !== "Finalizada" ? (
         <Button
-          leftIcon={<FiUserMinus />}
-          colorScheme="red"
+          leftIcon={<FiUserMinus size={16} />}
           variant="outline"
+          borderColor="red.300"
+          color="red.600"
           isLoading={isLeaving}
           loadingText="Saindo..."
           onClick={leaveMatch}
-          size="md"
+          size={{ base: "sm", md: "md" }}
+          borderRadius="lg"
+          _hover={{
+            bg: "red.50",
+            borderColor: "red.400",
+          }}
         >
           Sair da Lista
         </Button>
       ) : isListFull ? (
         <Button
-          leftIcon={<FiUserPlus />}
-          colorScheme="gray"
+          leftIcon={<FiUserPlus size={16} />}
+          variant="outline"
+          borderColor="gray.300"
+          color="gray.500"
           isDisabled
-          size="md"
+          size={{ base: "sm", md: "md" }}
+          borderRadius="lg"
         >
           Lista Lotada
         </Button>
       ) : null}
 
       {/* Lista Principal - Vagas Confirmadas */}
-      <VStack spacing={3} align="stretch">
-        <Text fontSize="md" fontWeight="semibold" color="gray.700" mb={2}>
-          🏆 Vagas Confirmadas ({maxPlayers})
+      <VStack spacing={{ base: 2, md: 3 }} align="stretch">
+        <Text
+          fontSize={{ base: "sm", md: "md" }}
+          fontWeight="semibold"
+          color="primary.900"
+          mb={1}
+        >
+          🏆 Confirmados ({maxPlayers})
         </Text>
 
         {fullSlots.map((slot) => (
@@ -192,25 +220,35 @@ const ConfirmedPlayersList = ({ match }) => {
         ))}
       </VStack>
 
-      {/* Divisor */}
-      <Divider />
-
       {/* Lista de Espera */}
-      <VStack spacing={3} align="stretch">
-        <Text fontSize="md" fontWeight="semibold" color="orange.600" mb={2}>
-          ⏳ Lista de Espera (mínimo {minWaitingSlots})
-        </Text>
+      {(waitingCount > 0 || canJoin) && (
+        <>
+          <Divider borderColor="gray.200" />
 
-        {waitingSlots.map((slot) => (
-          <SlotCard
-            key={slot.position}
-            slot={slot}
-            isUserAdmin={isUserAdmin}
-            onRemove={() => slot.player && openRemoveDialog(slot.player)}
-            status="waiting"
-          />
-        ))}
-      </VStack>
+          <VStack spacing={{ base: 2, md: 3 }} align="stretch">
+            <Text
+              fontSize={{ base: "sm", md: "md" }}
+              fontWeight="semibold"
+              color="orange.600"
+              mb={1}
+            >
+              ⏳ Lista de Espera
+            </Text>
+
+            {waitingSlots
+              .slice(0, Math.max(2, waitingPlayers.length))
+              .map((slot) => (
+                <SlotCard
+                  key={slot.position}
+                  slot={slot}
+                  isUserAdmin={isUserAdmin}
+                  onRemove={() => slot.player && openRemoveDialog(slot.player)}
+                  status="waiting"
+                />
+              ))}
+          </VStack>
+        </>
+      )}
 
       {/* Dialog de confirmação de remoção */}
       <RemovePlayerDialog
@@ -233,25 +271,25 @@ const SlotCard = ({ slot, isUserAdmin, onRemove, status }) => {
   if (isEmpty) {
     return (
       <Box
-        p={4}
+        p={{ base: 3, md: 3 }}
         bg="gray.50"
         borderRadius="lg"
-        border="2px dashed"
+        border="1px dashed"
         borderColor="gray.300"
-        opacity={0.7}
+        opacity={0.6}
       >
         <HStack spacing={3}>
           {/* Posição */}
           <Box
-            w={8}
-            h={8}
+            w={7}
+            h={7}
             bg="gray.200"
             color="gray.500"
             borderRadius="full"
             display="flex"
             alignItems="center"
             justifyContent="center"
-            fontSize="sm"
+            fontSize="xs"
             fontWeight="bold"
           >
             {position}
@@ -259,20 +297,17 @@ const SlotCard = ({ slot, isUserAdmin, onRemove, status }) => {
 
           {/* Informações da vaga */}
           <VStack spacing={0} align="start" flex={1}>
-            <Text fontWeight="medium" color="gray.500">
+            <Text fontWeight="medium" color="gray.500" fontSize="sm">
               Vaga Disponível
             </Text>
             <Text fontSize="xs" color="gray.400">
               {status === "confirmed"
-                ? "Confirme sua presença"
-                : "Aguardando liberação"}
+                ? "Aguardando confirmação"
+                : "Lista de espera"}
             </Text>
           </VStack>
 
-          <Spacer />
-
-          {/* Status da vaga */}
-          <Badge colorScheme="gray" variant="outline">
+          <Badge colorScheme="gray" variant="outline" fontSize="xs">
             Livre
           </Badge>
         </HStack>
@@ -285,7 +320,7 @@ const SlotCard = ({ slot, isUserAdmin, onRemove, status }) => {
 
   return (
     <Box
-      p={4}
+      p={{ base: 3, md: 3 }}
       bg="white"
       borderRadius="lg"
       border="1px"
@@ -295,37 +330,41 @@ const SlotCard = ({ slot, isUserAdmin, onRemove, status }) => {
       <HStack spacing={3}>
         {/* Posição */}
         <Box
-          w={8}
-          h={8}
+          w={7}
+          h={7}
           bg={status === "confirmed" ? "green.100" : "orange.100"}
           color={status === "confirmed" ? "green.600" : "orange.600"}
           borderRadius="full"
           display="flex"
           alignItems="center"
           justifyContent="center"
-          fontSize="sm"
+          fontSize="xs"
           fontWeight="bold"
         >
           {position}
         </Box>
 
-        <VStack spacing={0} align="start" flex={1}>
-          <HStack spacing={2}>
-            <Text fontWeight="semibold" color="gray.800">
+        <VStack spacing={0} align="start" flex={1} minW={0}>
+          <HStack spacing={2} w="full">
+            <Text
+              fontWeight="semibold"
+              color="primary.900"
+              fontSize={{ base: "sm", md: "md" }}
+              noOfLines={1}
+              flex={1}
+            >
               {userData?.name || `Usuário ${userData?.phone || player.userId}`}
+              {isMonthlyPayer && (
+                <Text as="span" ml={1} color="orange.500">
+                  💰
+                </Text>
+              )}
             </Text>
-            {isMonthlyPayer && (
-              <Badge colorScheme="orange" variant="subtle" fontSize="xs">
-                Mensalista
-              </Badge>
-            )}
           </HStack>
           <Text fontSize="xs" color="gray.500">
-            Confirmado em {format(joinedAt, "dd/MM HH:mm:ss", { locale: ptBR })}
+            {format(joinedAt, "dd/MM HH:mm:ss", { locale: ptBR })}
           </Text>
         </VStack>
-
-        <Spacer />
 
         {/* Ações para admin */}
         {isUserAdmin && (
@@ -335,8 +374,9 @@ const SlotCard = ({ slot, isUserAdmin, onRemove, status }) => {
             colorScheme="red"
             onClick={onRemove}
             aria-label="Remover jogador"
+            borderRadius="md"
           >
-            <FiUserMinus />
+            <FiUserMinus size={14} />
           </Button>
         )}
       </HStack>
@@ -358,22 +398,38 @@ const RemovePlayerDialog = ({
     isOpen={isOpen}
     leastDestructiveRef={cancelRef}
     onClose={onClose}
+    isCentered
   >
     <AlertDialogOverlay>
-      <AlertDialogContent>
-        <AlertDialogHeader fontSize="lg" fontWeight="bold">
+      <AlertDialogContent mx={4} borderRadius="lg">
+        <AlertDialogHeader fontSize="lg" fontWeight="bold" color="primary.900">
           Remover da Lista
         </AlertDialogHeader>
 
-        <AlertDialogBody>
-          Tem certeza que deseja remover {playerName} da lista desta pelada?
+        <AlertDialogBody color="gray.700">
+          Tem certeza que deseja remover <strong>{playerName}</strong> da lista
+          desta partida?
         </AlertDialogBody>
 
         <AlertDialogFooter>
-          <Button ref={cancelRef} onClick={onClose}>
+          <Button
+            ref={cancelRef}
+            onClick={onClose}
+            variant="outline"
+            borderRadius="lg"
+          >
             Cancelar
           </Button>
-          <Button colorScheme="red" onClick={onConfirm} ml={3}>
+          <Button
+            bg="red.500"
+            color="white"
+            onClick={onConfirm}
+            ml={3}
+            borderRadius="lg"
+            _hover={{
+              bg: "red.600",
+            }}
+          >
             Confirmar
           </Button>
         </AlertDialogFooter>

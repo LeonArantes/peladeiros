@@ -49,93 +49,122 @@ const PlayerCard = ({ player }) => {
 
   return (
     <Box
-      p={4}
+      p={{ base: 3, md: 4 }}
       bg="white"
       borderRadius="lg"
       border="1px solid"
       borderColor="gray.200"
-      shadow="sm"
+      boxShadow="sm"
       cursor="pointer"
       onClick={() => navigate(`/player/${player?.id}`)}
       _hover={{
-        shadow: "md",
-        borderColor: "gray.300",
+        boxShadow: "md",
+        borderColor: "primary.200",
         transform: "translateY(-1px)",
       }}
       transition="all 0.2s"
     >
-      <HStack spacing={4} align="start">
+      <HStack spacing={{ base: 3, md: 4 }} align="start">
         {/* Avatar */}
         <Box
-          w={12}
-          h={12}
-          bg="gray.600"
+          w={{ base: 10, md: 12 }}
+          h={{ base: 10, md: 12 }}
+          bg="primary.900"
           color="white"
           borderRadius="full"
           display="flex"
           alignItems="center"
           justifyContent="center"
-          fontSize="lg"
+          fontSize={{ base: "md", md: "lg" }}
           fontWeight="bold"
+          flexShrink={0}
         >
           {player?.name?.charAt(0)?.toUpperCase()}
         </Box>
 
         {/* Informações principais */}
-        <VStack spacing={2} align="start" flex={1}>
-          <VStack spacing={0} align="start">
-            <Text fontWeight="semibold" fontSize="md" color="gray.800">
+        <VStack spacing={{ base: 1, md: 2 }} align="start" flex={1} minW={0}>
+          <VStack spacing={0} align="start" w="full">
+            <Text
+              fontWeight="semibold"
+              fontSize={{ base: "sm", md: "md" }}
+              color="primary.900"
+              noOfLines={1}
+            >
               {player?.name}
             </Text>
-            <Text fontSize="sm" color="gray.600">
+            <Text fontSize={{ base: "xs", md: "sm" }} color="gray.500">
               {calculateAge(player?.birthdate)} anos
             </Text>
           </VStack>
 
-          {/* Badges de status */}
-          <HStack spacing={2} wrap="wrap">
+          {/* Badges de status - layout responsivo */}
+          <HStack spacing={{ base: 1, md: 2 }} wrap="wrap" w="full">
             <Badge
-              colorScheme={player?.is_active ? "green" : "red"}
-              variant="solid"
+              colorScheme={player?.is_active ? "green" : "gray"}
+              variant={player?.is_active ? "subtle" : "outline"}
               fontSize="xs"
+              borderRadius="md"
+              px={2}
+              py={1}
             >
               {player?.is_active ? "Ativo" : "Inativo"}
             </Badge>
 
-            <Badge
-              colorScheme={player?.is_montly_payer ? "blue" : "gray"}
-              variant={player?.is_montly_payer ? "solid" : "outline"}
-              fontSize="xs"
-            >
-              {player?.is_montly_payer ? "Mensalista" : "Avulso"}
-            </Badge>
+            {player?.is_montly_payer && (
+              <Badge
+                bg="primary.100"
+                color="primary.800"
+                variant="subtle"
+                fontSize="xs"
+                borderRadius="md"
+                px={2}
+                py={1}
+              >
+                Mensalista
+              </Badge>
+            )}
 
             {player?.is_admin && (
-              <Badge colorScheme="purple" variant="solid" fontSize="xs">
+              <Badge
+                colorScheme="purple"
+                variant="subtle"
+                fontSize="xs"
+                borderRadius="md"
+                px={2}
+                py={1}
+              >
                 Admin
               </Badge>
             )}
           </HStack>
 
           {/* Informações do jogo */}
-          <HStack spacing={4} fontSize="sm" color="gray.600">
-            <HStack spacing={1}>
-              <FiShield size={14} />
-              <Text>{formatPositions(player?.playing_positions)}</Text>
+          <HStack
+            spacing={{ base: 3, md: 4 }}
+            fontSize={{ base: "xs", md: "sm" }}
+            color="gray.600"
+            w="full"
+          >
+            <HStack spacing={1} minW={0}>
+              <FiShield size={12} color="gray.500" />
+              <Text noOfLines={1} fontWeight="medium">
+                {formatPositions(player?.playing_positions)}
+              </Text>
             </HStack>
 
             <HStack spacing={1}>
-              <FiTarget size={14} />
-              <Text fontWeight="medium" color="blue.600">
-                {player?.score || 0} pts
+              <FiTarget size={12} color="primary.600" />
+              <Text fontWeight="semibold" color="primary.600">
+                {player?.score || 0}
               </Text>
             </HStack>
           </HStack>
         </VStack>
 
         {/* Seta */}
-        <Flex align="center" h="full">
-          <FiChevronRight size={20} color="gray.400" />
+        <Flex align="center" h="full" flexShrink={0}>
+          <FiChevronRight size={16} color="gray.400" />
         </Flex>
       </HStack>
     </Box>

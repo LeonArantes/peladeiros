@@ -360,129 +360,198 @@ const MatchDetails = ({ match, division, onMatchUpdate }) => {
   // Se não há divisão, mostrar mensagem
   if (!division) {
     return (
-      <Box textAlign="center" py={8}>
+      <Center py={8}>
         <VStack spacing={4}>
           <Icon as={FiUsers} boxSize={12} color="gray.400" />
-          <Text color="gray.500" fontSize="lg">
+          <Text
+            color="gray.500"
+            fontSize={{ base: "md", md: "lg" }}
+            textAlign="center"
+          >
             Crie a divisão dos times primeiro
           </Text>
-          <Text color="gray.400" fontSize="sm">
+          <Text
+            color="gray.400"
+            fontSize={{ base: "sm", md: "md" }}
+            textAlign="center"
+          >
             Para registrar o placar é necessário ter os times definidos
           </Text>
         </VStack>
-      </Box>
+      </Center>
     );
   }
 
   // Se não há match ID, mostrar erro
   if (!match?.id) {
     return (
-      <Box textAlign="center" py={8}>
+      <Center py={8}>
         <VStack spacing={4}>
-          <FiTarget size={48} color="gray.400" />
-          <Text color="gray.500" fontSize="lg">
+          <Icon as={FiTarget} boxSize={12} color="gray.400" />
+          <Text
+            color="gray.500"
+            fontSize={{ base: "md", md: "lg" }}
+            textAlign="center"
+          >
             Informações da partida não encontradas
           </Text>
-          <Text color="gray.400" fontSize="sm">
+          <Text
+            color="gray.400"
+            fontSize={{ base: "sm", md: "md" }}
+            textAlign="center"
+          >
             Não é possível carregar os gols sem as informações da partida
           </Text>
         </VStack>
-      </Box>
+      </Center>
     );
   }
 
   return (
-    <VStack spacing={6} align="stretch">
+    <VStack spacing={{ base: 4, md: 6 }} align="stretch">
       {/* Header com placar */}
-      <Card>
-        <CardHeader>
-          <HStack justify="space-between" align="center">
-            <Heading size="md">Placar da Partida</Heading>
-            <HStack spacing={3}>
-              {isAdmin && (
-                <Button
-                  leftIcon={<FiPlus />}
-                  colorScheme="green"
-                  size="sm"
-                  onClick={onOpen}
-                  isDisabled={saving || finishingMatch}
-                >
-                  Adicionar Gol
-                </Button>
-              )}
-              {isAdmin && match?.status !== "Finalizada" && (
-                <Button
-                  leftIcon={<FiFlag />}
-                  colorScheme="orange"
-                  size="sm"
-                  onClick={confirmFinishMatch}
-                  isLoading={finishingMatch}
-                  isDisabled={saving || finishingMatch}
-                >
-                  Finalizar Partida
-                </Button>
-              )}
-            </HStack>
-          </HStack>
-
-          {/* Mostrar status da partida se finalizada */}
-          {match?.status === "Finalizada" && (
-            <Box mt={3}>
-              <Badge
-                colorScheme="orange"
-                variant="solid"
-                p={2}
-                borderRadius="md"
+      <Card
+        borderRadius="lg"
+        boxShadow="sm"
+        border="1px solid"
+        borderColor="gray.200"
+      >
+        <CardHeader p={{ base: 4, md: 6 }}>
+          <VStack spacing={{ base: 3, md: 4 }}>
+            <HStack
+              justify="space-between"
+              align="center"
+              w="full"
+              direction={{ base: "column", sm: "row" }}
+              spacing={{ base: 3, sm: 0 }}
+            >
+              <Heading
+                size={{ base: "sm", md: "md" }}
+                w="full"
+                color="primary.900"
               >
-                <HStack spacing={2}>
-                  <FiCheck />
-                  <Text fontSize="sm">Partida Finalizada</Text>
-                </HStack>
-              </Badge>
-            </Box>
-          )}
+                Placar da Partida
+              </Heading>
+              <HStack
+                spacing={{ base: 2, md: 3 }}
+                direction={{ base: "column", sm: "row" }}
+                w={{ base: "full", sm: "auto" }}
+              >
+                {isAdmin && (
+                  <Button
+                    leftIcon={<FiPlus size={14} />}
+                    bg="primary.900"
+                    color="white"
+                    size={{ base: "sm", md: "md" }}
+                    borderRadius="lg"
+                    flex={{ base: 1, sm: "auto" }}
+                    onClick={onOpen}
+                    isDisabled={saving || finishingMatch}
+                    _hover={{
+                      bg: "primary.800",
+                    }}
+                  >
+                    Gol
+                  </Button>
+                )}
+                {isAdmin && match?.status !== "Finalizada" && (
+                  <Button
+                    leftIcon={<FiFlag size={14} />}
+                    variant="outline"
+                    borderColor="orange.300"
+                    color="orange.600"
+                    size={{ base: "sm", md: "md" }}
+                    borderRadius="lg"
+                    flex={{ base: 1, sm: "auto" }}
+                    onClick={confirmFinishMatch}
+                    isLoading={finishingMatch}
+                    isDisabled={saving || finishingMatch}
+                    _hover={{
+                      bg: "orange.50",
+                      borderColor: "orange.400",
+                    }}
+                  >
+                    Finalizar
+                  </Button>
+                )}
+              </HStack>
+            </HStack>
+
+            {/* Mostrar status da partida se finalizada */}
+          </VStack>
         </CardHeader>
-        <CardBody>
-          <Grid templateColumns="1fr auto 1fr" gap={4} alignItems="center">
+
+        <CardBody pt={0} p={{ base: 4, md: 6 }}>
+          <Grid
+            templateColumns={{ base: "1fr auto 1fr", md: "1fr auto 1fr" }}
+            gap={{ base: 4, md: 6 }}
+            alignItems="center"
+          >
             {/* Time Preto */}
-            <VStack>
-              <HStack spacing={3}>
+            <VStack spacing={0}>
+              <HStack spacing={3} justify="center">
                 <Image
                   src={teamBlackShield}
                   alt="Time Preto"
-                  w="32px"
-                  h="32px"
+                  w={{ base: "24px", md: "32px" }}
+                  h={{ base: "24px", md: "32px" }}
                   objectFit="contain"
                 />
-                <Text fontWeight="bold" fontSize="lg">
-                  TIME PRETO
+                <Text
+                  fontWeight="bold"
+                  fontSize={{ base: "sm", md: "lg" }}
+                  color="primary.900"
+                  textAlign={{ base: "center", md: "left" }}
+                >
+                  PRETO
                 </Text>
               </HStack>
-              <Text fontSize="3xl" fontWeight="bold" color="gray.800">
+              <Text
+                fontSize={{ base: "2xl", md: "3xl" }}
+                fontWeight="bold"
+                color="primary.900"
+                textAlign="center"
+              >
                 {blackScore}
               </Text>
             </VStack>
 
-            {/* VS */}
-            <Text fontSize="2xl" fontWeight="bold" color="gray.400">
+            {/* VS - Hidden no mobile quando grid é 1 coluna */}
+            <Text
+              fontSize={{ base: "lg", md: "2xl" }}
+              fontWeight="bold"
+              color="gray.400"
+              display={{ base: "block", md: "block" }}
+              textAlign="center"
+            >
               X
             </Text>
 
             {/* Time Branco */}
-            <VStack>
-              <HStack spacing={3}>
+            <VStack spacing={0}>
+              <HStack spacing={3} justify="center">
                 <Image
                   src={teamWhiteShield}
                   alt="Time Branco"
-                  w="32px"
-                  h="32px"
+                  w={{ base: "24px", md: "32px" }}
+                  h={{ base: "24px", md: "32px" }}
                   objectFit="contain"
                 />
-                <Text fontWeight="bold" fontSize="lg">
-                  TIME BRANCO
+                <Text
+                  fontWeight="bold"
+                  fontSize={{ base: "sm", md: "lg" }}
+                  color="primary.900"
+                  textAlign={{ base: "center", md: "left" }}
+                >
+                  BRANCO
                 </Text>
               </HStack>
-              <Text fontSize="3xl" fontWeight="bold" color="gray.800">
+              <Text
+                fontSize={{ base: "2xl", md: "3xl" }}
+                fontWeight="bold"
+                color="primary.900"
+                textAlign="center"
+              >
                 {whiteScore}
               </Text>
             </VStack>
@@ -494,30 +563,45 @@ const MatchDetails = ({ match, division, onMatchUpdate }) => {
       {loading ? (
         <Center py={8}>
           <VStack spacing={4}>
-            <Spinner size="xl" color="blue.500" />
-            <Text color="gray.500">Carregando gols da partida...</Text>
+            <Spinner size="xl" color="primary.900" />
+            <Text color="gray.600">Carregando gols da partida...</Text>
           </VStack>
         </Center>
       ) : goals.length > 0 ? (
-        <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6}>
+        <Grid
+          templateColumns={{ base: "1fr", md: "1fr 1fr" }}
+          gap={{ base: 4, md: 6 }}
+        >
           {/* Gols Time Preto */}
-          <Card>
-            <CardHeader>
+          <Card
+            borderRadius="lg"
+            boxShadow="sm"
+            border="1px solid"
+            borderColor="gray.200"
+          >
+            <CardHeader p={{ base: 4, md: 6 }}>
               <HStack spacing={3}>
                 <Image
                   src={teamBlackShield}
                   alt="Time Preto"
-                  w="24px"
-                  h="24px"
+                  w={{ base: "20px", md: "24px" }}
+                  h={{ base: "20px", md: "24px" }}
                   objectFit="contain"
                 />
-                <Heading size="sm">Gols Time Preto</Heading>
+                <Heading size={{ base: "xs", md: "sm" }} color="primary.900">
+                  Gols Time Preto
+                </Heading>
               </HStack>
             </CardHeader>
-            <CardBody>
+            <CardBody pt={0} p={{ base: 4, md: 6 }}>
               <VStack spacing={3} align="stretch">
                 {getGoalsByTeam("black").length === 0 ? (
-                  <Text color="gray.500" fontSize="sm" textAlign="center">
+                  <Text
+                    color="gray.500"
+                    fontSize="sm"
+                    textAlign="center"
+                    py={4}
+                  >
                     Nenhum gol registrado
                   </Text>
                 ) : (
@@ -525,25 +609,34 @@ const MatchDetails = ({ match, division, onMatchUpdate }) => {
                     <HStack
                       key={goal.id}
                       justify="space-between"
-                      p={3}
+                      p={{ base: 3, md: 3 }}
                       bg="gray.50"
-                      borderRadius="md"
+                      borderRadius="lg"
                     >
-                      <VStack align="start" spacing={0}>
-                        <Text fontWeight="medium">{goal.playerName}</Text>
+                      <VStack align="start" spacing={1} flex={1} minW={0}>
+                        <Text
+                          fontWeight="semibold"
+                          fontSize={{ base: "sm", md: "md" }}
+                          color="primary.900"
+                          noOfLines={1}
+                        >
+                          {goal.playerName}
+                        </Text>
                         <Badge
                           colorScheme={goal.type === "favor" ? "green" : "red"}
                           size="sm"
+                          fontSize="xs"
                         >
                           {goal.type === "favor" ? "A favor" : "Gol contra"}
                         </Badge>
                       </VStack>
                       {isAdmin && (
                         <IconButton
-                          icon={<FiTrash2 />}
+                          icon={<FiTrash2 size={14} />}
                           size="sm"
                           variant="ghost"
                           colorScheme="red"
+                          borderRadius="lg"
                           onClick={() => confirmDelete(goal)}
                           isLoading={saving}
                           isDisabled={saving}
@@ -557,23 +650,35 @@ const MatchDetails = ({ match, division, onMatchUpdate }) => {
           </Card>
 
           {/* Gols Time Branco */}
-          <Card>
-            <CardHeader>
+          <Card
+            borderRadius="lg"
+            boxShadow="sm"
+            border="1px solid"
+            borderColor="gray.200"
+          >
+            <CardHeader p={{ base: 4, md: 6 }}>
               <HStack spacing={3}>
                 <Image
                   src={teamWhiteShield}
                   alt="Time Branco"
-                  w="24px"
-                  h="24px"
+                  w={{ base: "20px", md: "24px" }}
+                  h={{ base: "20px", md: "24px" }}
                   objectFit="contain"
                 />
-                <Heading size="sm">Gols Time Branco</Heading>
+                <Heading size={{ base: "xs", md: "sm" }} color="primary.900">
+                  Gols Time Branco
+                </Heading>
               </HStack>
             </CardHeader>
-            <CardBody>
+            <CardBody pt={0} p={{ base: 4, md: 6 }}>
               <VStack spacing={3} align="stretch">
                 {getGoalsByTeam("white").length === 0 ? (
-                  <Text color="gray.500" fontSize="sm" textAlign="center">
+                  <Text
+                    color="gray.500"
+                    fontSize="sm"
+                    textAlign="center"
+                    py={4}
+                  >
                     Nenhum gol registrado
                   </Text>
                 ) : (
@@ -581,25 +686,34 @@ const MatchDetails = ({ match, division, onMatchUpdate }) => {
                     <HStack
                       key={goal.id}
                       justify="space-between"
-                      p={3}
+                      p={{ base: 3, md: 3 }}
                       bg="gray.50"
-                      borderRadius="md"
+                      borderRadius="lg"
                     >
-                      <VStack align="start" spacing={0}>
-                        <Text fontWeight="medium">{goal.playerName}</Text>
+                      <VStack align="start" spacing={1} flex={1} minW={0}>
+                        <Text
+                          fontWeight="semibold"
+                          fontSize={{ base: "sm", md: "md" }}
+                          color="primary.900"
+                          noOfLines={1}
+                        >
+                          {goal.playerName}
+                        </Text>
                         <Badge
                           colorScheme={goal.type === "favor" ? "green" : "red"}
                           size="sm"
+                          fontSize="xs"
                         >
                           {goal.type === "favor" ? "A favor" : "Gol contra"}
                         </Badge>
                       </VStack>
                       {isAdmin && (
                         <IconButton
-                          icon={<FiTrash2 />}
+                          icon={<FiTrash2 size={14} />}
                           size="sm"
                           variant="ghost"
                           colorScheme="red"
+                          borderRadius="lg"
                           onClick={() => confirmDelete(goal)}
                           isLoading={saving}
                           isDisabled={saving}
@@ -613,14 +727,27 @@ const MatchDetails = ({ match, division, onMatchUpdate }) => {
           </Card>
         </Grid>
       ) : (
-        <Card>
-          <CardBody>
-            <VStack spacing={4} py={8}>
-              <FiTarget size={48} color="gray.400" />
-              <Text color="gray.500" fontSize="lg">
+        <Card
+          borderRadius="lg"
+          boxShadow="sm"
+          border="1px solid"
+          borderColor="gray.200"
+        >
+          <CardBody p={{ base: 6, md: 8 }}>
+            <VStack spacing={4} py={4}>
+              <Icon as={FiTarget} boxSize={12} color="gray.400" />
+              <Text
+                color="gray.500"
+                fontSize={{ base: "md", md: "lg" }}
+                textAlign="center"
+              >
                 Nenhum gol registrado
               </Text>
-              <Text color="gray.400" fontSize="sm" textAlign="center">
+              <Text
+                color="gray.400"
+                fontSize={{ base: "sm", md: "md" }}
+                textAlign="center"
+              >
                 {isAdmin
                   ? "Adicione gols para registrar o placar da partida"
                   : "Aguarde os administradores registrarem os gols"}
@@ -631,16 +758,18 @@ const MatchDetails = ({ match, division, onMatchUpdate }) => {
       )}
 
       {/* Modal para adicionar gol */}
-      <Modal isOpen={isOpen} onClose={handleCloseModal}>
+      <Modal isOpen={isOpen} onClose={handleCloseModal} isCentered>
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Registrar Gol</ModalHeader>
+        <ModalContent mx={4} borderRadius="lg">
+          <ModalHeader color="primary.900">Registrar Gol</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <VStack spacing={4}>
               {/* Seleção do time */}
               <FormControl>
-                <FormLabel>Time que marcou o gol</FormLabel>
+                <FormLabel color="primary.900" fontWeight="semibold">
+                  Time que marcou o gol
+                </FormLabel>
                 <RadioGroup value={selectedTeam} onChange={setSelectedTeam}>
                   <Stack direction="row" spacing={8}>
                     <Radio value="black">Time Preto</Radio>
@@ -671,7 +800,7 @@ const MatchDetails = ({ match, division, onMatchUpdate }) => {
                 <Box
                   p={3}
                   bg="blue.50"
-                  borderRadius="md"
+                  borderRadius="lg"
                   border="1px solid"
                   borderColor="blue.200"
                 >
@@ -686,7 +815,7 @@ const MatchDetails = ({ match, division, onMatchUpdate }) => {
 
               {/* Seleção do jogador */}
               <FormControl>
-                <FormLabel>
+                <FormLabel color="primary.900" fontWeight="semibold">
                   Jogador
                   {!showAllPlayers && (
                     <Text fontSize="xs" color="gray.600" ml={1} as="span">
@@ -699,6 +828,7 @@ const MatchDetails = ({ match, division, onMatchUpdate }) => {
                   placeholder="Selecione o jogador"
                   value={selectedPlayer}
                   onChange={(e) => setSelectedPlayer(e.target.value)}
+                  borderRadius="lg"
                 >
                   {showAllPlayers ? (
                     // Renderizar com separadores quando mostrando todos os jogadores
@@ -792,7 +922,9 @@ const MatchDetails = ({ match, division, onMatchUpdate }) => {
 
               {/* Tipo do gol */}
               <FormControl>
-                <FormLabel>Tipo do Gol</FormLabel>
+                <FormLabel color="primary.900" fontWeight="semibold">
+                  Tipo do Gol
+                </FormLabel>
                 <RadioGroup value={goalType} onChange={setGoalType}>
                   <Stack spacing={4}>
                     <Radio value="favor">
@@ -825,10 +957,24 @@ const MatchDetails = ({ match, division, onMatchUpdate }) => {
           </ModalBody>
 
           <ModalFooter>
-            <Button variant="outline" mr={3} onClick={handleCloseModal}>
+            <Button
+              variant="outline"
+              mr={3}
+              onClick={handleCloseModal}
+              borderRadius="lg"
+            >
               Cancelar
             </Button>
-            <Button colorScheme="green" onClick={addGoal} isLoading={saving}>
+            <Button
+              bg="primary.900"
+              color="white"
+              onClick={addGoal}
+              isLoading={saving}
+              borderRadius="lg"
+              _hover={{
+                bg: "primary.800",
+              }}
+            >
               Registrar Gol
             </Button>
           </ModalFooter>
@@ -836,24 +982,36 @@ const MatchDetails = ({ match, division, onMatchUpdate }) => {
       </Modal>
 
       {/* Dialog de confirmação para deletar */}
-      <AlertDialog isOpen={isDeleteOpen} onClose={onDeleteClose}>
+      <AlertDialog isOpen={isDeleteOpen} onClose={onDeleteClose} isCentered>
         <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader>Remover Gol</AlertDialogHeader>
-            <AlertDialogBody>
+          <AlertDialogContent mx={4} borderRadius="lg">
+            <AlertDialogHeader color="primary.900">
+              Remover Gol
+            </AlertDialogHeader>
+            <AlertDialogBody color="gray.700">
               Tem certeza que deseja remover o gol de{" "}
               <strong>{goalToDelete?.playerName}</strong>?
             </AlertDialogBody>
             <AlertDialogFooter>
-              <Button onClick={onDeleteClose} isDisabled={saving}>
+              <Button
+                onClick={onDeleteClose}
+                isDisabled={saving}
+                variant="outline"
+                borderRadius="lg"
+              >
                 Cancelar
               </Button>
               <Button
-                colorScheme="red"
+                bg="red.500"
+                color="white"
                 onClick={() => removeGoal(goalToDelete?.id)}
                 ml={3}
                 isLoading={saving}
                 isDisabled={saving}
+                borderRadius="lg"
+                _hover={{
+                  bg: "red.600",
+                }}
               >
                 Remover
               </Button>
@@ -865,18 +1023,20 @@ const MatchDetails = ({ match, division, onMatchUpdate }) => {
       {/* Dialog de confirmação para finalizar partida */}
       <AlertDialog isOpen={isFinishOpen} onClose={onFinishClose}>
         <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader>Finalizar Partida</AlertDialogHeader>
+          <AlertDialogContent mx={4} borderRadius="lg">
+            <AlertDialogHeader color="primary.900">
+              Finalizar Partida
+            </AlertDialogHeader>
             <AlertDialogBody>
               <VStack spacing={3} align="start">
-                <Text>
+                <Text color="gray.700">
                   Tem certeza que deseja marcar esta pelada como{" "}
                   <strong>finalizada</strong>?
                 </Text>
                 <Box
                   p={3}
                   bg="orange.50"
-                  borderRadius="md"
+                  borderRadius="lg"
                   border="1px solid"
                   borderColor="orange.200"
                 >
@@ -888,7 +1048,7 @@ const MatchDetails = ({ match, division, onMatchUpdate }) => {
                 </Box>
 
                 {/* Mostrar placar atual */}
-                <Box p={3} bg="gray.50" borderRadius="md" w="full">
+                <Box p={3} bg="gray.50" borderRadius="lg" w="full">
                   <Text fontSize="sm" color="gray.600" mb={2}>
                     Placar atual da partida:
                   </Text>
@@ -897,7 +1057,11 @@ const MatchDetails = ({ match, division, onMatchUpdate }) => {
                       <Text fontSize="xs" color="gray.500">
                         TIME PRETO
                       </Text>
-                      <Text fontSize="2xl" fontWeight="bold">
+                      <Text
+                        fontSize="2xl"
+                        fontWeight="bold"
+                        color="primary.900"
+                      >
                         {calculateScore().blackScore}
                       </Text>
                     </VStack>
@@ -908,7 +1072,11 @@ const MatchDetails = ({ match, division, onMatchUpdate }) => {
                       <Text fontSize="xs" color="gray.500">
                         TIME BRANCO
                       </Text>
-                      <Text fontSize="2xl" fontWeight="bold">
+                      <Text
+                        fontSize="2xl"
+                        fontWeight="bold"
+                        color="primary.900"
+                      >
                         {calculateScore().whiteScore}
                       </Text>
                     </VStack>
@@ -917,16 +1085,26 @@ const MatchDetails = ({ match, division, onMatchUpdate }) => {
               </VStack>
             </AlertDialogBody>
             <AlertDialogFooter>
-              <Button onClick={onFinishClose} isDisabled={finishingMatch}>
+              <Button
+                onClick={onFinishClose}
+                isDisabled={finishingMatch}
+                variant="outline"
+                borderRadius="lg"
+              >
                 Cancelar
               </Button>
               <Button
-                colorScheme="orange"
+                bg="orange.500"
+                color="white"
                 onClick={finishMatch}
                 ml={3}
                 isLoading={finishingMatch}
                 isDisabled={finishingMatch}
-                leftIcon={<FiFlag />}
+                leftIcon={<FiFlag size={14} />}
+                borderRadius="lg"
+                _hover={{
+                  bg: "orange.600",
+                }}
               >
                 Finalizar Partida
               </Button>

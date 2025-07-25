@@ -17,7 +17,7 @@ export const useTeamDivision = (match, attendanceList = []) => {
   const [division, setDivision] = useState(null);
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
-  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(true);
 
   // Estados derivados
   const isAdmin = userService.isAdmin(user);

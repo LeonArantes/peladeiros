@@ -68,7 +68,7 @@ const TeamDivision = ({ match, attendanceList }) => {
     return (
       <Center py={8}>
         <VStack spacing={4}>
-          <Spinner color="black" />
+          <Spinner color="primary.900" />
           <Text color="gray.600">Carregando escalação...</Text>
         </VStack>
       </Center>
@@ -80,10 +80,18 @@ const TeamDivision = ({ match, attendanceList }) => {
       <Center py={8}>
         <VStack spacing={4}>
           <Icon as={FiUsers} boxSize={12} color="gray.400" />
-          <Text fontSize="lg" color="gray.500" textAlign="center">
+          <Text
+            fontSize={{ base: "md", md: "lg" }}
+            color="gray.500"
+            textAlign="center"
+          >
             Nenhum jogador confirmado
           </Text>
-          <Text fontSize="sm" color="gray.400" textAlign="center">
+          <Text
+            fontSize={{ base: "sm", md: "md" }}
+            color="gray.400"
+            textAlign="center"
+          >
             Aguarde jogadores confirmarem presença para criar a escalação
           </Text>
         </VStack>
@@ -92,14 +100,27 @@ const TeamDivision = ({ match, attendanceList }) => {
   }
 
   return (
-    <VStack spacing={6} align="stretch" p={0}>
-      <Flex justify="space-between" align="center" p={0}>
+    <VStack spacing={{ base: 4, md: 6 }} align="stretch" p={0}>
+      <Flex
+        justify="space-between"
+        align="center"
+        p={0}
+        direction={{ base: "column", sm: "row" }}
+        gap={{ base: 3, sm: 0 }}
+      >
         {hasDivision && !showCreateForm && canEditDivision() && (
           <HStack spacing={2}>
             <Button
-              leftIcon={<FiEdit3 />}
+              leftIcon={<FiEdit3 size={14} />}
               variant="outline"
-              size="sm"
+              size={{ base: "sm", md: "md" }}
+              borderColor="primary.200"
+              color="primary.900"
+              borderRadius="lg"
+              _hover={{
+                bg: "primary.50",
+                borderColor: "primary.300",
+              }}
               onClick={() => toggleCreateForm(true)}
             >
               Editar
@@ -110,9 +131,14 @@ const TeamDivision = ({ match, attendanceList }) => {
 
         {!hasDivision && !showCreateForm && (
           <Button
-            leftIcon={<FiPlus />}
-            colorScheme="green"
-            size="sm"
+            leftIcon={<FiPlus size={14} />}
+            bg="primary.900"
+            color="white"
+            size={{ base: "sm", md: "md" }}
+            borderRadius="lg"
+            _hover={{
+              bg: "primary.800",
+            }}
             onClick={() => toggleCreateForm(true)}
           >
             Criar Escalação
@@ -142,10 +168,18 @@ const TeamDivision = ({ match, attendanceList }) => {
         <Center py={8}>
           <VStack spacing={4}>
             <Icon as={FiShuffle} boxSize={10} color="gray.400" />
-            <Text color="gray.500" textAlign="center">
+            <Text
+              color="gray.500"
+              textAlign="center"
+              fontSize={{ base: "md", md: "lg" }}
+            >
               Nenhuma escalação criada ainda
             </Text>
-            <Text fontSize="sm" color="gray.400" textAlign="center">
+            <Text
+              fontSize={{ base: "sm", md: "md" }}
+              color="gray.400"
+              textAlign="center"
+            >
               Crie a divisão dos times para organizar a partida
             </Text>
           </VStack>
@@ -160,14 +194,32 @@ const TeamDivision = ({ match, attendanceList }) => {
  */
 const DivisionDisplay = ({ division }) => {
   return (
-    <Card variant="outline" borderColor="green.200" bg="white">
-      <CardHeader pb={2}>
-        <Flex justify="space-between" align="center">
+    <Card
+      variant="outline"
+      borderColor="gray.200"
+      bg="white"
+      borderRadius="lg"
+      boxShadow="sm"
+    >
+      <CardHeader pb={2} p={{ base: 4, md: 6 }}>
+        <Flex
+          justify="space-between"
+          align="center"
+          direction={{ base: "column", sm: "row" }}
+          gap={{ base: 2, sm: 0 }}
+        >
           <HStack spacing={2}>
-            <Badge colorScheme="green" variant="solid">
+            <Badge
+              colorScheme="green"
+              variant="solid"
+              fontSize="xs"
+              px={2}
+              py={1}
+              borderRadius="md"
+            >
               ESCALAÇÃO OFICIAL
             </Badge>
-            <Text fontSize="sm" color="gray.600">
+            <Text fontSize={{ base: "xs", md: "sm" }} color="gray.600">
               por {division.creatorData?.name || "Usuário"}
             </Text>
           </HStack>
@@ -184,7 +236,7 @@ const DivisionDisplay = ({ division }) => {
         </Flex>
       </CardHeader>
 
-      <CardBody pt={0}>
+      <CardBody pt={0} p={{ base: 4, md: 6 }}>
         <TeamsDisplay
           teamBlack={division.teamBlackData}
           teamWhite={division.teamWhiteData}
@@ -199,16 +251,20 @@ const DivisionDisplay = ({ division }) => {
  */
 const TeamsDisplay = ({ teamBlack, teamWhite }) => {
   return (
-    <Grid templateColumns="1fr" gap={4} w="full">
+    <Grid
+      templateColumns={{ base: "1fr", md: "1fr 1fr" }}
+      gap={{ base: 4, md: 6 }}
+      w="full"
+    >
       {/* Time Preto */}
       <GridItem>
         <VStack spacing={3}>
           <Box
             bg="white"
-            color="gray.800"
-            py={3}
-            px={4}
-            borderRadius="md"
+            color="gray.900"
+            py={{ base: 3, md: 4 }}
+            px={{ base: 3, md: 4 }}
+            borderRadius="lg"
             w="full"
             textAlign="center"
             position="relative"
@@ -218,13 +274,15 @@ const TeamsDisplay = ({ teamBlack, teamWhite }) => {
                 src={teamBlackShield}
                 alt="Escudo Time Preto"
                 objectFit="contain"
-                w="24px"
+                w={{ base: "20px", md: "24px" }}
               />
               <VStack spacing={0}>
-                <Text fontWeight="bold" fontSize="lg">
+                <Text fontWeight="bold" fontSize={{ base: "md", md: "lg" }}>
                   TIME PRETO
                 </Text>
-                <Text fontSize="sm">{teamBlack.length} jogadores</Text>
+                <Text fontSize={{ base: "xs", md: "sm" }}>
+                  {teamBlack.length} jogadores
+                </Text>
               </VStack>
             </HStack>
           </Box>
@@ -235,22 +293,27 @@ const TeamsDisplay = ({ teamBlack, teamWhite }) => {
                 key={player.id}
                 player={player}
                 position={index + 1}
-                color="blackAlpha"
+                color="black"
               />
             ))}
           </VStack>
         </VStack>
       </GridItem>
-      <Divider orientation="vertical" />
+
+      <Divider
+        orientation={{ base: "horizontal", md: "vertical" }}
+        borderColor="gray.200"
+      />
+
       {/* Time Branco */}
       <GridItem>
         <VStack spacing={3}>
           <Box
             bg="white"
-            color="gray.800"
-            py={3}
-            px={4}
-            borderRadius="md"
+            color="gray.900"
+            py={{ base: 3, md: 4 }}
+            px={{ base: 3, md: 4 }}
+            borderRadius="lg"
             w="full"
             textAlign="center"
             position="relative"
@@ -260,13 +323,15 @@ const TeamsDisplay = ({ teamBlack, teamWhite }) => {
                 src={teamWhiteShield}
                 alt="Escudo Time Branco"
                 objectFit="contain"
-                w="24px"
+                w={{ base: "20px", md: "24px" }}
               />
               <VStack spacing={0}>
-                <Text fontWeight="bold" fontSize="lg">
+                <Text fontWeight="bold" fontSize={{ base: "md", md: "lg" }}>
                   TIME BRANCO
                 </Text>
-                <Text fontSize="sm">{teamWhite.length} jogadores</Text>
+                <Text fontSize={{ base: "xs", md: "sm" }}>
+                  {teamWhite.length} jogadores
+                </Text>
               </VStack>
             </HStack>
           </Box>
@@ -298,46 +363,45 @@ const PlayerCard = ({ player, position, color }) => {
 
   return (
     <Box
-      bg={color === "white" ? "white" : "black"}
+      bg={color === "white" ? "white" : "gray.900"}
       border="1px solid"
-      borderColor={color === "white" ? "gray.800" : "black"}
-      p={3}
-      borderRadius="md"
+      borderColor={color === "white" ? "gray.300" : "gray.900"}
+      p={{ base: 3, md: 3 }}
+      borderRadius="lg"
       w="full"
       boxShadow="sm"
     >
       <HStack spacing={3} justify="space-between">
-        <VStack spacing={1} align="start" flex={1}>
+        <VStack spacing={0} align="start" flex={1} minW={0}>
           <Text
-            fontSize="sm"
-            fontWeight="medium"
-            color={color === "white" ? "gray.800" : "white"}
+            fontSize={{ base: "sm", md: "md" }}
+            fontWeight="semibold"
+            color={color === "white" ? "primary.900" : "white"}
+            noOfLines={1}
           >
             {player.name}
+            {player.is_montly_payer && (
+              <Text as="span" ml={1} color="orange.500">
+                💰
+              </Text>
+            )}
           </Text>
           <Text
             fontSize="xs"
             color={color === "white" ? "gray.600" : "gray.300"}
+            noOfLines={1}
           >
             {formatPositions(player.playing_positions)}
           </Text>
-          <HStack spacing={2}>
-            <Badge
-              size="sm"
-              colorScheme={color === "white" ? "blue" : "orange"}
-              variant="solid"
-            >
-              Score: {player.score || 0}
-            </Badge>
-          </HStack>
         </VStack>
-        <Text
+        <Badge
+          size="sm"
+          colorScheme={color === "white" ? "blue" : "orange"}
+          variant="solid"
           fontSize="xs"
-          color={color === "white" ? "gray.800" : "white"}
-          fontWeight="bold"
         >
-          #{position}
-        </Text>
+          {player.score || 0}
+        </Badge>
       </HStack>
     </Box>
   );
@@ -400,33 +464,44 @@ const CreateDivisionForm = ({
   return (
     <Card
       variant="outline"
-      p={0}
-      borderRadius="none"
-      m={0}
-      spacing={0}
-      border="none"
-      shadow="none"
+      borderRadius="lg"
+      borderColor="gray.200"
+      boxShadow="sm"
     >
-      <CardHeader p={0}>
-        <Flex justify="space-between" align="center" p={0}>
-          <Text fontSize="md" fontWeight="semibold">
+      <CardHeader p={{ base: 4, md: 6 }}>
+        <Flex
+          justify="space-between"
+          align="center"
+          direction={{ base: "row", sm: "row" }}
+          gap={{ base: 3, sm: 0 }}
+        >
+          <Text
+            fontSize={{ base: "md", md: "lg" }}
+            fontWeight="semibold"
+            color="primary.900"
+          >
             {isEditing ? "Editar Escalação" : "Criar Escalação"}
           </Text>
-          <HStack spacing={2}>
-            <Button
-              leftIcon={<FiShuffle />}
-              size="sm"
-              variant="outline"
-              onClick={handleGenerateBalanced}
-            >
-              Gerar Automático
-            </Button>
-          </HStack>
+          <Button
+            leftIcon={<FiShuffle size={14} />}
+            size={{ base: "sm", md: "md" }}
+            variant="outline"
+            borderColor="primary.200"
+            color="primary.900"
+            borderRadius="lg"
+            _hover={{
+              bg: "primary.50",
+              borderColor: "primary.300",
+            }}
+            onClick={handleGenerateBalanced}
+          >
+            Auto
+          </Button>
         </Flex>
       </CardHeader>
 
-      <CardBody p={0} border="none">
-        <VStack spacing={4}>
+      <CardBody p={{ base: 4, md: 6 }}>
+        <VStack spacing={{ base: 4, md: 5 }}>
           {/* Exibir times em criação */}
           <CreateTeamsDisplay
             teamBlack={teamBlack}
@@ -437,18 +512,41 @@ const CreateDivisionForm = ({
           />
 
           {/* Botões de ação */}
-          <HStack spacing={4} w="full" justify="center">
+          <HStack
+            spacing={{ base: 3, md: 4 }}
+            w="full"
+            justify="center"
+            direction={{ base: "column", sm: "row" }}
+          >
             <Button
-              leftIcon={<FiCheck />}
-              colorScheme="green"
+              leftIcon={<FiCheck size={16} />}
+              bg="primary.900"
+              color="white"
               onClick={handleSubmit}
               isLoading={creating}
               loadingText={isEditing ? "Salvando..." : "Criando..."}
               isDisabled={teamBlack.length === 0 || teamWhite.length === 0}
+              size={{ base: "sm", md: "md" }}
+              borderRadius="lg"
+              flex={{ base: 1, sm: "auto" }}
+              _hover={{
+                bg: "primary.800",
+              }}
             >
               {isEditing ? "Salvar" : "Criar"}
             </Button>
-            <Button leftIcon={<FiX />} variant="outline" onClick={onCancel}>
+            <Button
+              leftIcon={<FiX size={16} />}
+              variant="outline"
+              onClick={onCancel}
+              size={{ base: "sm", md: "md" }}
+              borderRadius="lg"
+              flex={{ base: 1, sm: "auto" }}
+              borderColor="gray.300"
+              _hover={{
+                bg: "gray.50",
+              }}
+            >
               Cancelar
             </Button>
           </HStack>
@@ -473,14 +571,25 @@ const CreateTeamsDisplay = ({
   };
 
   return (
-    <VStack spacing={4} w="full" p={0} pt={4}>
+    <VStack spacing={{ base: 4, md: 5 }} w="full">
       {/* Jogadores disponíveis */}
       {availablePlayers.length > 0 && (
         <Box w="full">
-          <Text fontSize="sm" fontWeight="medium" mb={2} color="gray.700">
+          <Text
+            fontSize={{ base: "sm", md: "md" }}
+            fontWeight="semibold"
+            mb={3}
+            color="primary.900"
+          >
             Jogadores Disponíveis ({availablePlayers.length})
           </Text>
-          <Grid templateColumns="repeat(auto-fit, minmax(200px, 1fr))" gap={2}>
+          <Grid
+            templateColumns={{
+              base: "1fr",
+              sm: "repeat(auto-fit, minmax(200px, 1fr))",
+            }}
+            gap={{ base: 2, md: 3 }}
+          >
             {availablePlayers.map((player) => (
               <DraggablePlayer
                 key={player.userId}
@@ -498,27 +607,36 @@ const CreateTeamsDisplay = ({
       )}
 
       {/* Times sendo criados */}
-      <Grid templateColumns="1fr" gap={5} w="full">
+      <Grid
+        templateColumns={{ base: "1fr", md: "1fr 1fr" }}
+        gap={{ base: 4, md: 6 }}
+        w="full"
+      >
         <GridItem>
-          <VStack spacing={2}>
+          <VStack spacing={3}>
             <HStack spacing={2} align="center">
               <Image
                 src={teamBlackShield}
                 alt="Escudo Time Preto"
                 objectFit="contain"
-                w="24px"
+                w={{ base: "20px", md: "24px" }}
               />
-              <Text fontSize="sm" fontWeight="medium" color="gray.700">
+              <Text
+                fontSize={{ base: "sm", md: "md" }}
+                fontWeight="semibold"
+                color="primary.900"
+              >
                 TIME PRETO ({teamBlack.length})
               </Text>
             </HStack>
             <Box
-              minH="48px"
-              p={3}
+              minH="64px"
+              p={{ base: 3, md: 4 }}
               border="1px dashed"
               borderColor="gray.300"
-              borderRadius="md"
+              borderRadius="lg"
               w="full"
+              bg="gray.50"
             >
               <VStack spacing={2}>
                 {teamBlack.map((playerId) => {
@@ -541,25 +659,30 @@ const CreateTeamsDisplay = ({
         </GridItem>
 
         <GridItem>
-          <VStack spacing={2}>
+          <VStack spacing={3}>
             <HStack spacing={2} align="center">
               <Image
                 src={teamWhiteShield}
                 alt="Escudo Time Branco"
                 objectFit="contain"
-                w="24px"
+                w={{ base: "20px", md: "24px" }}
               />
-              <Text fontSize="sm" fontWeight="medium" color="gray.700">
+              <Text
+                fontSize={{ base: "sm", md: "md" }}
+                fontWeight="semibold"
+                color="primary.900"
+              >
                 TIME BRANCO ({teamWhite.length})
               </Text>
             </HStack>
             <Box
-              minH="48px"
-              p={3}
+              minH="64px"
+              p={{ base: 3, md: 4 }}
               border="1px dashed"
               borderColor="gray.300"
-              borderRadius="md"
+              borderRadius="lg"
               w="full"
+              bg="gray.50"
             >
               <VStack spacing={2}>
                 {teamWhite.map((playerId) => {
@@ -598,59 +721,81 @@ const DraggablePlayer = ({ player, onMoveToBlack, onMoveToWhite }) => {
       bg="white"
       border="1px solid"
       borderColor="gray.200"
-      p={3}
-      borderRadius="md"
+      p={{ base: 3, md: 3 }}
+      borderRadius="lg"
       cursor="pointer"
       _hover={{ bg: "gray.50" }}
     >
       <VStack spacing={2} align="stretch">
         <HStack justify="space-between">
-          <VStack spacing={0} align="start" flex={1}>
-            <Text fontSize="sm" fontWeight="medium">
+          <VStack spacing={0} align="start" flex={1} minW={0}>
+            <Text
+              fontSize={{ base: "sm", md: "md" }}
+              fontWeight="semibold"
+              color="primary.900"
+              noOfLines={1}
+            >
               {player.userData?.name}
+              {player.userData?.is_montly_payer && (
+                <Text as="span" ml={1} color="orange.500">
+                  💰
+                </Text>
+              )}
             </Text>
-            <Text fontSize="xs" color="gray.600">
+            <Text fontSize="xs" color="gray.600" noOfLines={1}>
               {formatPositions(player.userData?.playing_positions)}
             </Text>
           </VStack>
-          <Badge size="sm" colorScheme="blue" variant="solid">
+          <Badge size="sm" colorScheme="blue" variant="solid" fontSize="xs">
             {player.userData?.score || 0}
           </Badge>
         </HStack>
-        <HStack spacing={1} justify="center">
-          <IconButton
-            icon={
-              <Box
-                w="14px"
-                h="14px"
-                bg="gray.800"
-                borderRadius="full"
-                border="1px solid white"
-              />
-            }
-            size="xs"
-            variant="outline"
+        <HStack spacing={2} justify="center">
+          <Box
+            display="flex"
+            alignItems="center"
+            gap={2}
+            border="1px solid"
+            justifyContent="center"
+            flex={1}
+            p={2}
+            borderRadius="md"
+            bg="gray.800"
+            color="white"
+            fontWeight="semibold"
             onClick={onMoveToBlack}
-            title="Adicionar ao Time Preto"
-            _hover={{ bg: "gray.100" }}
-          />
-          <IconButton
-            icon={
-              <Box
-                w="14px"
-                h="14px"
-                bg="white"
-                borderRadius="full"
-                border="2px solid"
-                borderColor="gray.800"
-              />
-            }
-            size="xs"
-            variant="outline"
+          >
+            <Box
+              w="12px"
+              h="12px"
+              bg="gray.800"
+              borderRadius="full"
+              border="1px solid white"
+            />
+            Preto
+          </Box>
+          <Box
+            display="flex"
+            alignItems="center"
+            gap={2}
+            border="1px solid"
+            justifyContent="center"
+            flex={1}
+            p={2}
+            borderRadius="md"
+            fontWeight="semibold"
             onClick={onMoveToWhite}
-            title="Adicionar ao Time Branco"
-            _hover={{ bg: "gray.100" }}
-          />
+          >
+            <Box
+              w="12px"
+              h="12px"
+              bg="white"
+              borderRadius="full"
+              border="2px solid"
+              borderColor="gray.800"
+            />
+            Branco
+          </Box>
         </HStack>
       </VStack>
     </Box>
@@ -668,22 +813,32 @@ const AssignedPlayer = ({ player, onRemove, onMoveToOtherTeam, color }) => {
 
   return (
     <Box
-      bg={color !== "black" ? "white" : "black"}
+      bg={color !== "black" ? "white" : "gray.900"}
       border="1px solid"
-      borderColor={color !== "black" ? "gray.800" : "black"}
-      p={3}
-      borderRadius="md"
-      color={color !== "black" ? "gray.800" : "white"}
+      borderColor={color !== "black" ? "gray.300" : "gray.900"}
+      p={{ base: 3, md: 3 }}
+      borderRadius="lg"
+      color={color !== "black" ? "primary.900" : "white"}
       w="full"
     >
       <HStack justify="space-between" align="start">
-        <VStack spacing={1} align="start" flex={1}>
-          <Text fontSize="sm" fontWeight="medium">
+        <VStack spacing={1} align="start" flex={1} minW={0}>
+          <Text
+            fontSize={{ base: "sm", md: "md" }}
+            fontWeight="semibold"
+            noOfLines={1}
+          >
             {player.userData?.name}
+            {player.userData?.is_montly_payer && (
+              <Text as="span" ml={1} color="orange.500">
+                💰
+              </Text>
+            )}
           </Text>
           <Text
             fontSize="xs"
             color={color !== "black" ? "gray.600" : "gray.300"}
+            noOfLines={1}
           >
             {formatPositions(player.userData?.playing_positions)}
           </Text>
@@ -691,28 +846,32 @@ const AssignedPlayer = ({ player, onRemove, onMoveToOtherTeam, color }) => {
             size="sm"
             colorScheme={color !== "black" ? "blue" : "orange"}
             variant="solid"
+            fontSize="xs"
           >
-            Score: {player.userData?.score || 0}
+            {player.userData?.score || 0}
           </Badge>
         </VStack>
         <HStack spacing={1}>
           <IconButton
-            icon={
-              <FiShuffle color={color !== "black" ? "gray.800" : "white"} />
-            }
-            size="xs"
+            icon={<FiShuffle size={12} />}
+            size="sm"
             variant="ghost"
             onClick={onMoveToOtherTeam}
             title="Trocar de time"
-            _hover={{ bg: color !== "black" ? "white" : "black" }}
+            borderRadius="md"
+            _hover={{ bg: color !== "black" ? "gray.100" : "gray.800" }}
+            bg={color !== "black" ? "gray.100" : "white"}
           />
           <IconButton
-            icon={<FiX />}
-            size="xs"
+            icon={<FiX size={12} />}
+            size="sm"
             variant="ghost"
             colorScheme="red"
             onClick={onRemove}
             title="Remover do time"
+            _hover={{ bg: color !== "black" ? "gray.100" : "gray.800" }}
+            bg={color !== "black" ? "gray.100" : "gray.100"}
+            borderRadius="md"
           />
         </HStack>
       </HStack>
@@ -733,26 +892,45 @@ const DeleteButton = ({ onDelete }) => {
 
   return (
     <>
-      <IconButton
-        icon={<FiTrash2 />}
-        size="sm"
+      <Button
+        leftIcon={<FiTrash2 size={14} />}
+        size={{ base: "sm", md: "md" }}
         variant="outline"
         colorScheme="red"
+        borderRadius="lg"
         onClick={onOpen}
         title="Remover escalação"
-      />
-
-      <AlertDialog isOpen={isOpen} onClose={onClose}>
+      >
+        Deletar
+      </Button>
+      <AlertDialog isOpen={isOpen} onClose={onClose} isCentered>
         <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader>Remover Escalação</AlertDialogHeader>
-            <AlertDialogBody>
+          <AlertDialogContent mx={4} borderRadius="lg">
+            <AlertDialogHeader
+              fontSize="lg"
+              fontWeight="bold"
+              color="primary.900"
+            >
+              Remover Escalação
+            </AlertDialogHeader>
+            <AlertDialogBody color="gray.700">
               Tem certeza que deseja remover a escalação? Esta ação não pode ser
               desfeita.
             </AlertDialogBody>
             <AlertDialogFooter>
-              <Button onClick={onClose}>Cancelar</Button>
-              <Button colorScheme="red" onClick={handleDelete} ml={3}>
+              <Button onClick={onClose} variant="outline" borderRadius="lg">
+                Cancelar
+              </Button>
+              <Button
+                bg="red.500"
+                color="white"
+                onClick={handleDelete}
+                ml={3}
+                borderRadius="lg"
+                _hover={{
+                  bg: "red.600",
+                }}
+              >
                 Remover
               </Button>
             </AlertDialogFooter>

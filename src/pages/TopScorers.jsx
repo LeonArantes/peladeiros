@@ -5,7 +5,6 @@ import {
   VStack,
   HStack,
   Text,
-  Grid,
   Badge,
   Skeleton,
   Center,
@@ -26,19 +25,19 @@ import { useNavigate } from "react-router-dom";
  */
 const ScorerCardSkeleton = () => (
   <Box
-    p={4}
+    p={{ base: 3, md: 4 }}
     bg="white"
     borderRadius="lg"
     border="1px solid"
     borderColor="gray.200"
-    shadow="sm"
+    boxShadow="sm"
   >
-    <HStack spacing={4} align="center" justify="space-between">
-      <HStack spacing={3} flex={1}>
-        <Skeleton height="24px" width="40px" borderRadius="md" />
-        <Skeleton height="16px" width="150px" />
+    <HStack spacing={{ base: 3, md: 4 }} align="center" justify="space-between">
+      <HStack spacing={{ base: 2, md: 3 }} flex={1}>
+        <Skeleton height="24px" width="40px" borderRadius="lg" />
+        <Skeleton height="16px" width={{ base: "120px", md: "150px" }} />
       </HStack>
-      <HStack spacing={4}>
+      <HStack spacing={{ base: 2, md: 4 }}>
         <Skeleton height="16px" width="30px" />
         <Skeleton height="16px" width="30px" />
       </HStack>
@@ -50,7 +49,7 @@ const ScorerCardSkeleton = () => (
  * Componente que renderiza múltiplos skeletons
  */
 const TopScorersLoadingSkeleton = ({ count = 10 }) => (
-  <VStack spacing={3} align="stretch">
+  <VStack spacing={{ base: 2, md: 3 }} align="stretch">
     {Array.from({ length: count }, (_, index) => (
       <ScorerCardSkeleton key={index} />
     ))}
@@ -83,33 +82,41 @@ const ScorerCard = ({ scorer, onClick }) => {
 
   return (
     <Box
-      p={4}
+      p={{ base: 3, md: 4 }}
       bg={cardBg}
       borderRadius="lg"
       border="1px solid"
       borderColor={borderColor}
-      shadow="sm"
+      boxShadow="sm"
       cursor="pointer"
       onClick={onClick}
       _hover={{
-        shadow: "md",
-        borderColor: "gray.300",
+        boxShadow: "md",
+        borderColor: "primary.200",
         transform: "translateY(-1px)",
       }}
       transition="all 0.2s"
     >
-      <HStack spacing={4} align="center" justify="space-between">
+      <HStack
+        spacing={{ base: 3, md: 4 }}
+        align="center"
+        justify="space-between"
+      >
         {/* Rank e Nome */}
-        <HStack spacing={3} flex={1}>
+        <HStack spacing={{ base: 2, md: 3 }} flex={1} minW={0}>
           {/* Posição no ranking */}
-          <HStack spacing={1} minW="60px">
+          <HStack
+            spacing={1}
+            minW={{ base: "50px", md: "60px" }}
+            flexShrink={0}
+          >
             <Badge
               colorScheme={positionColor}
               variant="solid"
-              fontSize="sm"
+              fontSize={{ base: "xs", md: "sm" }}
               px={2}
               py={1}
-              borderRadius="md"
+              borderRadius="lg"
             >
               #{scorer.position}
             </Badge>
@@ -118,32 +125,53 @@ const ScorerCard = ({ scorer, onClick }) => {
           {/* Nome do jogador */}
           <Text
             fontWeight="semibold"
-            fontSize="md"
-            color="gray.800"
+            fontSize={{ base: "sm", md: "md" }}
+            color="primary.900"
             noOfLines={1}
+            flex={1}
           >
             {scorer.playerName}
           </Text>
         </HStack>
 
         {/* Estatísticas */}
-        <HStack spacing={6} minW="120px">
+        <HStack
+          spacing={{ base: 3, md: 6 }}
+          minW={{ base: "80px", md: "120px" }}
+          flexShrink={0}
+        >
           {/* Gols */}
-          <VStack spacing={0} align="center" minW="40px">
-            <Text fontSize="lg" fontWeight="bold" color="green.500">
+          <VStack spacing={0} align="center" minW="30px">
+            <Text
+              fontSize={{ base: "md", md: "lg" }}
+              fontWeight="bold"
+              color="green.500"
+            >
               {scorer.goalsFor}
             </Text>
-            <Text fontSize="xs" color="gray.500">
+            <Text
+              fontSize="xs"
+              color="gray.500"
+              display={{ base: "none", md: "block" }}
+            >
               {scorer.goalsFor === 1 ? "gol" : "gols"}
             </Text>
           </VStack>
 
           {/* Partidas */}
-          <VStack spacing={0} align="center" minW="40px">
-            <Text fontSize="lg" fontWeight="bold" color="blue.500">
+          <VStack spacing={0} align="center" minW="30px">
+            <Text
+              fontSize={{ base: "md", md: "lg" }}
+              fontWeight="bold"
+              color="primary.600"
+            >
               {scorer.matchesPlayed}
             </Text>
-            <Text fontSize="xs" color="gray.500">
+            <Text
+              fontSize="xs"
+              color="gray.500"
+              display={{ base: "none", md: "block" }}
+            >
               {scorer.matchesPlayed === 1 ? "jogo" : "jogos"}
             </Text>
           </VStack>
@@ -158,41 +186,50 @@ const ScorerCard = ({ scorer, onClick }) => {
  */
 const TableHeader = () => (
   <Box
-    p={4}
+    p={{ base: 3, md: 4 }}
     bg="gray.100"
     borderRadius="lg"
     border="1px solid"
     borderColor="gray.200"
     mb={2}
   >
-    <HStack spacing={4} align="center" justify="space-between">
+    <HStack spacing={{ base: 3, md: 4 }} align="center" justify="space-between">
       {/* Headers da esquerda */}
-      <HStack spacing={3} flex={1}>
-        <Text fontSize="sm" fontWeight="bold" color="gray.600" minW="60px">
+      <HStack spacing={{ base: 2, md: 3 }} flex={1}>
+        <Text
+          fontSize={{ base: "xs", md: "sm" }}
+          fontWeight="bold"
+          color="gray.600"
+          minW={{ base: "50px", md: "60px" }}
+        >
           Rank
         </Text>
-        <Text fontSize="sm" fontWeight="bold" color="gray.600">
+        <Text
+          fontSize={{ base: "xs", md: "sm" }}
+          fontWeight="bold"
+          color="gray.600"
+        >
           Jogador
         </Text>
       </HStack>
 
       {/* Headers da direita */}
-      <HStack spacing={6} minW="120px">
+      <HStack spacing={{ base: 3, md: 6 }} minW={{ base: "80px", md: "120px" }}>
         <Text
-          fontSize="sm"
+          fontSize={{ base: "xs", md: "sm" }}
           fontWeight="bold"
           color="gray.600"
           textAlign="center"
-          minW="40px"
+          minW="30px"
         >
           Gols
         </Text>
         <Text
-          fontSize="sm"
+          fontSize={{ base: "xs", md: "sm" }}
           fontWeight="bold"
           color="gray.600"
           textAlign="center"
-          minW="40px"
+          minW="30px"
         >
           Jogos
         </Text>
@@ -221,30 +258,59 @@ export default function TopScorers() {
   };
 
   return (
-    <Box minH="100vh" bg="gray.50" pb="80px">
-      <Container maxW="container.xl" px={4} py={6}>
+    <Box minH="100vh" bg="gray.50" pb={{ base: "24", md: "80px" }}>
+      <Container
+        maxW={{
+          base: "full",
+          sm: "container.sm",
+          md: "container.md",
+          lg: "container.xl",
+        }}
+        px={{ base: 4, md: 6 }}
+        py={{ base: 4, md: 6 }}
+      >
         {/* Header */}
-        <VStack spacing={6} align="stretch">
-          <Flex justify="space-between" align="center" wrap="wrap" gap={4}>
+        <VStack spacing={{ base: 4, md: 6 }} align="stretch">
+          <Flex
+            justify="space-between"
+            align={{ base: "start", md: "center" }}
+            wrap="wrap"
+            gap={{ base: 3, md: 4 }}
+            direction={{ base: "column", md: "row" }}
+          >
             <VStack spacing={1} align="start">
               <HStack spacing={3}>
-                <FiGift size={28} color="#D69E2E" />
-                <Heading size="xl" color="gray.800">
+                <Heading
+                  size={{ base: "lg", md: "xl" }}
+                  color="primary.900"
+                  lineHeight="shorter"
+                >
                   Artilheiros
                 </Heading>
               </HStack>
-              <Text color="gray.600" fontSize="md">
+              <Text
+                color="gray.600"
+                fontSize={{ base: "sm", md: "md" }}
+                lineHeight="base"
+              >
                 Ranking dos jogadores que mais marcaram gols a favor
               </Text>
             </VStack>
 
             <Button
-              leftIcon={<FiRefreshCw />}
+              leftIcon={<FiRefreshCw size={16} />}
               variant="outline"
               onClick={handleRefresh}
               isLoading={loading}
               loadingText="Atualizando..."
-              size="md"
+              size={{ base: "sm", md: "md" }}
+              borderColor="primary.200"
+              color="primary.900"
+              borderRadius="lg"
+              _hover={{
+                bg: "primary.50",
+                borderColor: "primary.300",
+              }}
             >
               Atualizar
             </Button>
@@ -258,8 +324,12 @@ export default function TopScorers() {
               <Alert status="error" borderRadius="lg" maxW="md">
                 <AlertIcon />
                 <Box>
-                  <AlertTitle>Erro ao carregar artilheiros</AlertTitle>
-                  <AlertDescription fontSize="sm">{error}</AlertDescription>
+                  <AlertTitle fontSize={{ base: "sm", md: "md" }}>
+                    Erro ao carregar artilheiros
+                  </AlertTitle>
+                  <AlertDescription fontSize={{ base: "xs", md: "sm" }}>
+                    {error}
+                  </AlertDescription>
                 </Box>
               </Alert>
             </Center>
@@ -272,19 +342,35 @@ export default function TopScorers() {
                   <FiTarget size={48} />
                 </Box>
                 <VStack spacing={2}>
-                  <Text fontSize="lg" fontWeight="medium" color="gray.600">
+                  <Text
+                    fontSize={{ base: "md", md: "lg" }}
+                    fontWeight="medium"
+                    color="gray.600"
+                  >
                     Nenhum artilheiro encontrado
                   </Text>
-                  <Text fontSize="sm" color="gray.500" textAlign="center">
+                  <Text
+                    fontSize={{ base: "xs", md: "sm" }}
+                    color="gray.500"
+                    textAlign="center"
+                    maxW="md"
+                  >
                     Os artilheiros aparecerão aqui quando houver gols
                     registrados nas partidas
                   </Text>
                 </VStack>
                 <Button
-                  leftIcon={<FiRefreshCw />}
+                  leftIcon={<FiRefreshCw size={16} />}
                   variant="outline"
                   onClick={handleRefresh}
                   size="sm"
+                  borderColor="primary.200"
+                  color="primary.900"
+                  borderRadius="lg"
+                  _hover={{
+                    bg: "primary.50",
+                    borderColor: "primary.300",
+                  }}
                 >
                   Tentar novamente
                 </Button>
@@ -298,7 +384,7 @@ export default function TopScorers() {
               <TableHeader />
 
               {/* Lista de artilheiros */}
-              <VStack spacing={2} align="stretch">
+              <VStack spacing={{ base: 2, md: 3 }} align="stretch">
                 {topScorers.map((scorer) => (
                   <ScorerCard
                     key={scorer.playerId}

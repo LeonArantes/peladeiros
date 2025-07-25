@@ -106,8 +106,8 @@ const DetailMatch = () => {
     return (
       <Center minH="100vh">
         <VStack spacing={4}>
-          <Spinner size="xl" color="black" />
-          <Text>Carregando detalhes da partida...</Text>
+          <Spinner size="xl" color="primary.900" />
+          <Text color="gray.600">Carregando detalhes da partida...</Text>
         </VStack>
       </Center>
     );
@@ -116,7 +116,7 @@ const DetailMatch = () => {
   if (!match) {
     return (
       <Center minH="100vh">
-        <Text>Partida não encontrada</Text>
+        <Text color="gray.600">Partida não encontrada</Text>
       </Center>
     );
   }
@@ -129,62 +129,121 @@ const DetailMatch = () => {
   };
 
   return (
-    <Box minH="100vh" bg="gray.50" pb="80px">
-      <Container maxW="container.xl" px={4} py={6}>
-        <VStack spacing={6} align="stretch">
+    <Box minH="100vh" bg="gray.50" pb={{ base: "24", md: "80px" }}>
+      <Container
+        maxW={{
+          base: "full",
+          sm: "container.sm",
+          md: "container.md",
+          lg: "container.xl",
+        }}
+        px={{ base: 4, md: 6 }}
+        py={{ base: 4, md: 6 }}
+      >
+        <VStack spacing={{ base: 4, md: 6 }} align="stretch">
           {/* Header */}
           <Box>
-            <HStack justify="space-between" align="center" wrap="wrap">
-              <Box display="flex" alignItems="center" gap={2}>
+            <HStack
+              justify="space-between"
+              align={{ base: "flex-start", md: "center" }}
+              wrap="wrap"
+              spacing={{ base: 3, md: 4 }}
+            >
+              <Flex align="center" gap={{ base: 2, md: 3 }} flex={1} minW={0}>
                 <IconButton
-                  icon={<FiArrowLeft />}
+                  icon={<FiArrowLeft size={18} />}
                   aria-label="Voltar"
+                  size={{ base: "sm", md: "md" }}
+                  bg="primary.900"
+                  color="white"
+                  borderRadius="lg"
+                  _hover={{
+                    bg: "primary.800",
+                  }}
                   onClick={() => navigate("/")}
                 />
-                <VStack align="start" spacing={1}>
-                  <Heading size="lg" color="gray.800">
+                <VStack align="start" spacing={1} flex={1} minW={0}>
+                  <Heading
+                    size={{ base: "md", md: "lg" }}
+                    color="primary.900"
+                    noOfLines={1}
+                  >
                     {match.local}
                   </Heading>
-                  <Text color="gray.600">{formatDate(match.date)}</Text>
+                  <Text
+                    color="gray.600"
+                    fontSize={{ base: "xs", md: "sm" }}
+                    noOfLines={1}
+                  >
+                    {formatDate(match.date)}
+                  </Text>
                 </VStack>
-              </Box>
+              </Flex>
+
               {/* Indicador de partida finalizada */}
               {match.status === "Finalizada" && (
                 <Badge
                   colorScheme="orange"
                   variant="solid"
-                  px={3}
+                  px={{ base: 2, md: 3 }}
                   py={1}
                   borderRadius="full"
-                  fontSize="sm"
+                  fontSize={{ base: "xs", md: "sm" }}
                 >
-                  🏁 Partida Finalizada
+                  🏁 Finalizada
                 </Badge>
               )}
             </HStack>
           </Box>
 
           {/* Informações da partida */}
-          <Card>
-            <CardBody>
-              <VStack spacing={4} align="stretch">
-                <HStack spacing={4} wrap="wrap">
+          <Card
+            borderRadius="lg"
+            boxShadow="sm"
+            border="1px solid"
+            borderColor="gray.200"
+          >
+            <CardBody p={{ base: 4, md: 6 }}>
+              <VStack spacing={{ base: 3, md: 4 }} align="stretch">
+                <Box
+                  display="grid"
+                  gridTemplateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }}
+                  gap={{ base: 3, md: 4 }}
+                >
                   <HStack spacing={2}>
-                    <FiMapPin color="gray.500" />
-                    <Text fontSize="sm" color="gray.700">
+                    <FiMapPin
+                      style={{ width: 16, height: 16 }}
+                      color="primary.900"
+                    />
+                    <Text
+                      fontSize={{ base: "sm", md: "md" }}
+                      color="gray.700"
+                      fontWeight="medium"
+                      noOfLines={1}
+                    >
                       {match.local || "Endereço não informado"}
                     </Text>
                   </HStack>
 
                   <HStack spacing={2}>
-                    <FiUsers color="gray.500" />
-                    <Text fontSize="sm" color="gray.700">
+                    <FiUsers
+                      style={{ width: 16, height: 16 }}
+                      color="primary.900"
+                    />
+                    <Text
+                      fontSize={{ base: "sm", md: "md" }}
+                      color="gray.700"
+                      fontWeight="medium"
+                    >
                       Máximo {match.max_players} jogadores
                     </Text>
                   </HStack>
 
                   <HStack spacing={2}>
-                    <FiClock color="gray.500" />
+                    <FiClock
+                      style={{ width: 16, height: 16 }}
+                      color="primary.900"
+                    />
                     <Badge
                       colorScheme={
                         match.status === "Ativa"
@@ -193,18 +252,37 @@ const DetailMatch = () => {
                           ? "orange"
                           : "gray"
                       }
+                      fontSize="xs"
+                      px={2}
+                      py={0.5}
+                      borderRadius="md"
                     >
                       {match.status || "Em andamento"}
                     </Badge>
                   </HStack>
-                </HStack>
+                </Box>
 
                 {match.observacoes && (
-                  <Box>
-                    <Text fontSize="sm" color="gray.600" fontWeight="medium">
+                  <Box
+                    bg="gray.50"
+                    borderRadius="md"
+                    p={{ base: 3, md: 4 }}
+                    border="1px solid"
+                    borderColor="gray.200"
+                  >
+                    <Text
+                      fontSize="sm"
+                      color="gray.600"
+                      fontWeight="semibold"
+                      mb={1}
+                    >
                       Observações:
                     </Text>
-                    <Text fontSize="sm" color="gray.700">
+                    <Text
+                      fontSize={{ base: "sm", md: "md" }}
+                      color="gray.700"
+                      lineHeight="relaxed"
+                    >
                       {match.observacoes}
                     </Text>
                   </Box>
@@ -214,36 +292,75 @@ const DetailMatch = () => {
           </Card>
 
           {/* Seções com Tabs */}
-          <Card borderRadius="md" boxShadow="sm" p={0}>
-            <CardBody p={4}>
-              <Tabs variant={"soft-rounded"} colorScheme="blackAlpha">
-                <TabList>
-                  <Tab aria-label="Partida" flex={1}>
-                    Detalhes da Partida
+          <Card
+            borderRadius="lg"
+            boxShadow="sm"
+            border="1px solid"
+            borderColor="gray.200"
+            p={0}
+          >
+            <CardBody p={{ base: 3, md: 4 }}>
+              <Tabs variant="soft-rounded" colorScheme="blackAlpha">
+                <TabList
+                  gap={{ base: 1, md: 2 }}
+                  flexWrap="wrap"
+                  justifyContent={{ base: "center", md: "flex-start" }}
+                >
+                  <Tab
+                    flex={{ base: "1", md: "auto" }}
+                    fontSize={{ base: "xs", md: "sm" }}
+                    px={{ base: 2, md: 4 }}
+                    py={{ base: 2, md: 2 }}
+                    borderRadius="lg"
+                    _selected={{
+                      bg: "primary.900",
+                      color: "white",
+                    }}
+                  >
+                    Detalhes
                   </Tab>
-                  <Tab aria-label="Escalação" flex={1}>
-                    Divisão do Time
+                  <Tab
+                    flex={{ base: "1", md: "auto" }}
+                    fontSize={{ base: "xs", md: "sm" }}
+                    px={{ base: 2, md: 4 }}
+                    py={{ base: 2, md: 2 }}
+                    borderRadius="lg"
+                    _selected={{
+                      bg: "primary.900",
+                      color: "white",
+                    }}
+                  >
+                    Divisão
                   </Tab>
-                  <Tab aria-label="Confirmados" flex={1}>
-                    Lista de Confirmados
+                  <Tab
+                    flex={{ base: "1", md: "auto" }}
+                    fontSize={{ base: "xs", md: "sm" }}
+                    px={{ base: 2, md: 4 }}
+                    py={{ base: 2, md: 2 }}
+                    borderRadius="lg"
+                    _selected={{
+                      bg: "primary.900",
+                      color: "white",
+                    }}
+                  >
+                    Confirmados
                   </Tab>
                 </TabList>
-                <TabPanels>
-                  <TabPanel id="match" px={0}>
+                <TabPanels mt={{ base: 3, md: 4 }}>
+                  <TabPanel px={0} py={0}>
                     <MatchDetails
                       match={match}
                       division={division}
                       onMatchUpdate={handleMatchUpdate}
                     />
                   </TabPanel>
-                  <TabPanel id="scale" px={0}>
+                  <TabPanel px={0} py={0}>
                     <TeamDivision
                       match={match}
                       attendanceList={attendanceList}
                     />
                   </TabPanel>
-
-                  <TabPanel id="confirmed" px={0}>
+                  <TabPanel px={0} py={0}>
                     <ConfirmedPlayersList match={match} />
                   </TabPanel>
                 </TabPanels>

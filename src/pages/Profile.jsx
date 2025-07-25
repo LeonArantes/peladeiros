@@ -61,6 +61,7 @@ import {
   FiTrendingDown,
   FiAward,
   FiUsers,
+  FiLogOut,
 } from "react-icons/fi";
 import { useForm, Controller } from "react-hook-form";
 import userService from "../services/userService";
@@ -69,7 +70,7 @@ import { usePlayerStats } from "../hooks/usePlayerStats";
 
 const Profile = () => {
   const toast = useToast();
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, logout } = useAuth();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [player, setPlayer] = useState(null);
@@ -321,8 +322,8 @@ const Profile = () => {
     return (
       <Center minH="100vh">
         <VStack spacing={4}>
-          <Spinner size="xl" color="black" />
-          <Text>Carregando seu perfil...</Text>
+          <Spinner size="xl" color="primary.900" />
+          <Text color="gray.600">Carregando seu perfil...</Text>
         </VStack>
       </Center>
     );
@@ -331,70 +332,149 @@ const Profile = () => {
   if (!player) {
     return (
       <Center minH="100vh">
-        <Text>Não foi possível carregar seu perfil</Text>
+        <Text color="gray.500">Não foi possível carregar seu perfil</Text>
       </Center>
     );
   }
 
   return (
-    <Box minH="100vh" bg="gray.50" pb="80px">
-      <Container maxW="container.xl" px={4} py={6}>
+    <Box minH="100vh" bg="gray.50" pb={{ base: "24", md: "80px" }}>
+      <Container
+        maxW={{
+          base: "full",
+          sm: "container.sm",
+          md: "container.md",
+          lg: "container.xl",
+        }}
+        px={{ base: 4, md: 6 }}
+        py={{ base: 4, md: 6 }}
+      >
         {/* Header */}
-        <Flex justify="space-between" align="center" mb={6}>
+        <Flex
+          justify="space-between"
+          align={{ base: "flex-start", md: "center" }}
+          mb={{ base: 4, md: 6 }}
+          direction={{ base: "column", md: "row" }}
+          gap={{ base: 3, md: 0 }}
+        >
           <VStack align="start" spacing={0}>
-            <Heading size="lg" color="gray.800">
+            <Heading size={{ base: "md", md: "lg" }} color="primary.900">
               Meu Perfil
             </Heading>
-            <Text color="gray.600" fontSize="sm">
+            <Text color="gray.600" fontSize={{ base: "xs", md: "sm" }}>
               {player.name} • {calculateAge(player.birthdate)} anos
             </Text>
           </VStack>
 
-          <Button leftIcon={<FiEdit />} colorScheme="blue" onClick={onOpen}>
-            Editar Perfil
-          </Button>
+          <HStack spacing={{ base: 2, md: 3 }}>
+            <Button
+              leftIcon={<FiEdit size={16} />}
+              size={{ base: "sm", md: "md" }}
+              variant="outline"
+              borderColor="primary.200"
+              color="primary.900"
+              borderRadius="lg"
+              _hover={{
+                bg: "primary.50",
+                borderColor: "primary.300",
+              }}
+              onClick={onOpen}
+            >
+              Editar
+            </Button>
+
+            <Button
+              leftIcon={<FiLogOut size={16} />}
+              size={{ base: "sm", md: "md" }}
+              bg="primary.900"
+              color="white"
+              borderRadius="lg"
+              _hover={{
+                bg: "primary.800",
+              }}
+              onClick={() => logout()}
+            >
+              Sair
+            </Button>
+          </HStack>
         </Flex>
 
-        <Grid templateColumns={{ base: "1fr", lg: "2fr 1fr" }} gap={6}>
+        <Grid
+          templateColumns={{ base: "1fr", lg: "2fr 1fr" }}
+          gap={{ base: 4, md: 6 }}
+        >
           {/* Informações do Perfil */}
           <GridItem>
-            <VStack spacing={6} align="stretch">
+            <VStack spacing={{ base: 4, md: 6 }} align="stretch">
               {/* Dados Pessoais */}
-              <Card>
-                <CardHeader>
-                  <Heading size="md">Informações Pessoais</Heading>
+              <Card
+                borderRadius="lg"
+                boxShadow="sm"
+                border="1px solid"
+                borderColor="gray.200"
+              >
+                <CardHeader p={{ base: 4, md: 6 }}>
+                  <Heading size={{ base: "sm", md: "md" }} color="primary.900">
+                    Informações Pessoais
+                  </Heading>
                 </CardHeader>
-                <CardBody>
-                  <VStack spacing={4} align="stretch">
-                    <HStack>
-                      <FiUser />
+                <CardBody pt={0} p={{ base: 4, md: 6 }}>
+                  <VStack spacing={{ base: 3, md: 4 }} align="stretch">
+                    <HStack spacing={{ base: 2, md: 3 }}>
+                      <FiUser size={16} color="gray.500" />
                       <VStack align="start" spacing={0} flex={1}>
-                        <Text fontSize="sm" color="gray.600">
+                        <Text
+                          fontSize={{ base: "xs", md: "sm" }}
+                          color="gray.600"
+                          fontWeight="medium"
+                        >
                           Nome Completo
                         </Text>
-                        <Text fontWeight="semibold">{player.name}</Text>
+                        <Text
+                          fontWeight="semibold"
+                          color="primary.900"
+                          fontSize={{ base: "sm", md: "md" }}
+                        >
+                          {player.name}
+                        </Text>
                       </VStack>
                     </HStack>
 
-                    <HStack>
-                      <FiPhone />
+                    <HStack spacing={{ base: 2, md: 3 }}>
+                      <FiPhone size={16} color="gray.500" />
                       <VStack align="start" spacing={0} flex={1}>
-                        <Text fontSize="sm" color="gray.600">
+                        <Text
+                          fontSize={{ base: "xs", md: "sm" }}
+                          color="gray.600"
+                          fontWeight="medium"
+                        >
                           Telefone
                         </Text>
-                        <Text fontWeight="semibold">
+                        <Text
+                          fontWeight="semibold"
+                          color="primary.900"
+                          fontSize={{ base: "sm", md: "md" }}
+                        >
                           {formatPhoneForDisplay(player.phone)}
                         </Text>
                       </VStack>
                     </HStack>
 
-                    <HStack>
-                      <FiCalendar />
+                    <HStack spacing={{ base: 2, md: 3 }}>
+                      <FiCalendar size={16} color="gray.500" />
                       <VStack align="start" spacing={0} flex={1}>
-                        <Text fontSize="sm" color="gray.600">
+                        <Text
+                          fontSize={{ base: "xs", md: "sm" }}
+                          color="gray.600"
+                          fontWeight="medium"
+                        >
                           Data de Nascimento
                         </Text>
-                        <Text fontWeight="semibold">
+                        <Text
+                          fontWeight="semibold"
+                          color="primary.900"
+                          fontSize={{ base: "sm", md: "md" }}
+                        >
                           {formatDateForDisplay(player.birthdate)} (
                           {calculateAge(player.birthdate)} anos)
                         </Text>
@@ -405,28 +485,51 @@ const Profile = () => {
               </Card>
 
               {/* Dados do Jogo */}
-              <Card>
-                <CardHeader>
-                  <Heading size="md">Dados do Jogo</Heading>
+              <Card
+                borderRadius="lg"
+                boxShadow="sm"
+                border="1px solid"
+                borderColor="gray.200"
+              >
+                <CardHeader p={{ base: 4, md: 6 }}>
+                  <Heading size={{ base: "sm", md: "md" }} color="primary.900">
+                    Dados do Jogo
+                  </Heading>
                 </CardHeader>
-                <CardBody>
-                  <VStack spacing={4} align="stretch">
-                    <HStack>
-                      <FiTarget />
+                <CardBody pt={0} p={{ base: 4, md: 6 }}>
+                  <VStack spacing={{ base: 3, md: 4 }} align="stretch">
+                    <HStack spacing={{ base: 2, md: 3 }}>
+                      <FiTarget size={16} color="primary.600" />
                       <VStack align="start" spacing={0} flex={1}>
-                        <Text fontSize="sm" color="gray.600">
+                        <Text
+                          fontSize={{ base: "xs", md: "sm" }}
+                          color="gray.600"
+                          fontWeight="medium"
+                        >
                           Pontuação
                         </Text>
-                        <Badge colorScheme="blue" fontSize="md" px={3} py={1}>
+                        <Badge
+                          bg="primary.100"
+                          color="primary.800"
+                          fontSize={{ base: "sm", md: "md" }}
+                          px={3}
+                          py={1}
+                          borderRadius="lg"
+                          fontWeight="semibold"
+                        >
                           {player.score || 0} pontos
                         </Badge>
                       </VStack>
                     </HStack>
 
-                    <HStack align="start">
-                      <FiShield />
+                    <HStack align="start" spacing={{ base: 2, md: 3 }}>
+                      <FiShield size={16} color="gray.500" />
                       <VStack align="start" spacing={0} flex={1}>
-                        <Text fontSize="sm" color="gray.600">
+                        <Text
+                          fontSize={{ base: "xs", md: "sm" }}
+                          color="gray.600"
+                          fontWeight="medium"
+                        >
                           Posições
                         </Text>
                         <Flex wrap="wrap" gap={2} mt={1}>
@@ -435,13 +538,18 @@ const Profile = () => {
                               <Badge
                                 key={position}
                                 colorScheme="green"
-                                variant="solid"
+                                variant="subtle"
+                                borderRadius="md"
+                                fontSize="xs"
                               >
                                 {position}
                               </Badge>
                             ))
                           ) : (
-                            <Text fontSize="sm" color="gray.500">
+                            <Text
+                              fontSize={{ base: "xs", md: "sm" }}
+                              color="gray.500"
+                            >
                               Nenhuma posição cadastrada
                             </Text>
                           )}
@@ -449,29 +557,45 @@ const Profile = () => {
                       </VStack>
                     </HStack>
 
-                    <HStack>
-                      <FiDollarSign />
+                    <HStack spacing={{ base: 2, md: 3 }}>
+                      <FiDollarSign size={16} color="gray.500" />
                       <VStack align="start" spacing={0} flex={1}>
-                        <Text fontSize="sm" color="gray.600">
+                        <Text
+                          fontSize={{ base: "xs", md: "sm" }}
+                          color="gray.600"
+                          fontWeight="medium"
+                        >
                           Situação
                         </Text>
                         <VStack align="start" spacing={1}>
+                          {player.is_montly_payer && (
+                            <Badge
+                              bg="primary.100"
+                              color="primary.800"
+                              variant="subtle"
+                              borderRadius="md"
+                              fontSize="xs"
+                            >
+                              Mensalista
+                            </Badge>
+                          )}
                           <Badge
-                            colorScheme={
-                              player.is_montly_payer ? "green" : "gray"
-                            }
-                          >
-                            {player.is_montly_payer
-                              ? "Mensalista"
-                              : "Não Mensalista"}
-                          </Badge>
-                          <Badge
-                            colorScheme={player.is_active ? "green" : "red"}
+                            colorScheme={player.is_active ? "green" : "gray"}
+                            variant={player.is_active ? "subtle" : "outline"}
+                            borderRadius="md"
+                            fontSize="xs"
                           >
                             {player.is_active ? "Ativo" : "Inativo"}
                           </Badge>
                           {player.is_admin && (
-                            <Badge colorScheme="purple">Administrador</Badge>
+                            <Badge
+                              colorScheme="purple"
+                              variant="subtle"
+                              borderRadius="md"
+                              fontSize="xs"
+                            >
+                              Administrador
+                            </Badge>
                           )}
                         </VStack>
                       </VStack>
@@ -484,30 +608,40 @@ const Profile = () => {
 
           {/* Minhas Estatísticas */}
           <GridItem>
-            <Card>
-              <CardHeader>
-                <Heading size="md">Minhas Estatísticas</Heading>
-                <Text fontSize="sm" color="gray.600">
+            <Card
+              borderRadius="lg"
+              boxShadow="sm"
+              border="1px solid"
+              borderColor="gray.200"
+            >
+              <CardHeader p={{ base: 4, md: 6 }}>
+                <Heading size={{ base: "sm", md: "md" }} color="primary.900">
+                  Minhas Estatísticas
+                </Heading>
+                <Text fontSize={{ base: "xs", md: "sm" }} color="gray.600">
                   {hasStats
                     ? "Dados baseados em suas partidas registradas"
                     : "Nenhuma estatística disponível"}
                 </Text>
               </CardHeader>
-              <CardBody>
+              <CardBody pt={0} p={{ base: 4, md: 6 }}>
                 {statsLoading ? (
                   <Center py={8}>
                     <VStack spacing={3}>
-                      <Spinner size="lg" color="blue.500" />
-                      <Text fontSize="sm" color="gray.500">
+                      <Spinner size="lg" color="primary.900" />
+                      <Text
+                        fontSize={{ base: "xs", md: "sm" }}
+                        color="gray.500"
+                      >
                         Carregando suas estatísticas...
                       </Text>
                     </VStack>
                   </Center>
                 ) : statsError ? (
-                  <Alert status="warning" borderRadius="md">
+                  <Alert status="warning" borderRadius="lg">
                     <AlertIcon />
                     <Box>
-                      <AlertTitle fontSize="sm">
+                      <AlertTitle fontSize={{ base: "xs", md: "sm" }}>
                         Erro ao carregar estatísticas
                       </AlertTitle>
                       <AlertDescription fontSize="xs">
@@ -519,7 +653,11 @@ const Profile = () => {
                   <Center py={8}>
                     <VStack spacing={3}>
                       <FiTarget size={32} color="gray.300" />
-                      <Text fontSize="sm" color="gray.500" textAlign="center">
+                      <Text
+                        fontSize={{ base: "xs", md: "sm" }}
+                        color="gray.500"
+                        textAlign="center"
+                      >
                         Você ainda não tem estatísticas completas.
                       </Text>
                       <Text fontSize="xs" color="gray.400" textAlign="center">
@@ -531,45 +669,57 @@ const Profile = () => {
                   </Center>
                 ) : (
                   <VStack spacing={4}>
-                    <Grid templateColumns="1fr 1fr" gap={4} w="full">
+                    <Grid
+                      templateColumns="1fr 1fr"
+                      gap={{ base: 3, md: 4 }}
+                      w="full"
+                    >
                       <Stat textAlign="center">
                         <StatLabel fontSize="xs">Meus Gols</StatLabel>
-                        <StatNumber color="green.500" fontSize="2xl">
+                        <StatNumber
+                          color="green.500"
+                          fontSize={{ base: "lg", md: "2xl" }}
+                        >
                           {stats.summary.goalsFor}
                         </StatNumber>
-                        <StatHelpText>
-                          <FiTrendingUp />
-                          Gols próprios
-                        </StatHelpText>
+                        <StatHelpText fontSize="xs">Gols próprios</StatHelpText>
                       </Stat>
 
                       <Stat textAlign="center">
                         <StatLabel fontSize="xs">Gols Contra</StatLabel>
-                        <StatNumber color="red.500" fontSize="2xl">
+                        <StatNumber
+                          color="red.500"
+                          fontSize={{ base: "lg", md: "2xl" }}
+                        >
                           {stats.summary.goalsAgainst}
                         </StatNumber>
-                        <StatHelpText>
-                          <FiTrendingDown />
+                        <StatHelpText fontSize="xs">
                           Gols contra meu time
                         </StatHelpText>
                       </Stat>
 
                       <Stat textAlign="center">
                         <StatLabel fontSize="xs">Vitórias</StatLabel>
-                        <StatNumber color="blue.500" fontSize="2xl">
+                        <StatNumber
+                          color="primary.600"
+                          fontSize={{ base: "lg", md: "2xl" }}
+                        >
                           {stats.summary.wins}
                         </StatNumber>
-                        <StatHelpText>
+                        <StatHelpText fontSize="xs">
                           {stats.summary.winRate}% dos jogos
                         </StatHelpText>
                       </Stat>
 
                       <Stat textAlign="center">
                         <StatLabel fontSize="xs">Derrotas</StatLabel>
-                        <StatNumber color="orange.500" fontSize="2xl">
+                        <StatNumber
+                          color="orange.500"
+                          fontSize={{ base: "lg", md: "2xl" }}
+                        >
                           {stats.summary.losses}
                         </StatNumber>
-                        <StatHelpText>
+                        <StatHelpText fontSize="xs">
                           {stats.summary.matchesPlayed > 0
                             ? Math.round(
                                 (stats.summary.losses /
@@ -587,11 +737,17 @@ const Profile = () => {
                         <Divider />
                         <VStack spacing={3} w="full">
                           <HStack justify="space-between" w="full">
-                            <HStack>
-                              <FiTarget />
-                              <Text fontSize="sm">Gols do Meu Time</Text>
+                            <HStack spacing={2}>
+                              <FiTarget size={14} color="primary.600" />
+                              <Text fontSize={{ base: "xs", md: "sm" }}>
+                                Gols do Meu Time
+                              </Text>
                             </HStack>
-                            <Badge colorScheme="cyan" fontSize="md">
+                            <Badge
+                              colorScheme="cyan"
+                              fontSize={{ base: "xs", md: "sm" }}
+                              borderRadius="md"
+                            >
                               {stats.summary.teamGoalsFor}
                             </Badge>
                           </HStack>
@@ -603,30 +759,44 @@ const Profile = () => {
 
                     <VStack spacing={3} w="full">
                       <HStack justify="space-between" w="full">
-                        <HStack>
-                          <FiUsers />
-                          <Text fontSize="sm">Partidas Jogadas</Text>
+                        <HStack spacing={2}>
+                          <FiUsers size={14} color="primary.600" />
+                          <Text fontSize={{ base: "xs", md: "sm" }}>
+                            Partidas Jogadas
+                          </Text>
                         </HStack>
-                        <Badge colorScheme="purple" fontSize="md">
+                        <Badge
+                          colorScheme="purple"
+                          fontSize={{ base: "xs", md: "sm" }}
+                          borderRadius="md"
+                        >
                           {stats.summary.matchesPlayed}
                         </Badge>
                       </HStack>
 
                       {stats.matches.draws > 0 && (
                         <HStack justify="space-between" w="full">
-                          <HStack>
-                            <Text fontSize="sm">Empates</Text>
+                          <HStack spacing={2}>
+                            <Text fontSize={{ base: "xs", md: "sm" }}>
+                              Empates
+                            </Text>
                           </HStack>
-                          <Badge colorScheme="gray" fontSize="md">
+                          <Badge
+                            colorScheme="gray"
+                            fontSize={{ base: "xs", md: "sm" }}
+                            borderRadius="md"
+                          >
                             {stats.matches.draws}
                           </Badge>
                         </HStack>
                       )}
 
                       <HStack justify="space-between" w="full">
-                        <HStack>
-                          <FiAward />
-                          <Text fontSize="sm">Meu Aproveitamento</Text>
+                        <HStack spacing={2}>
+                          <FiAward size={14} color="primary.600" />
+                          <Text fontSize={{ base: "xs", md: "sm" }}>
+                            Meu Aproveitamento
+                          </Text>
                         </HStack>
                         <Badge
                           colorScheme={
@@ -636,7 +806,8 @@ const Profile = () => {
                               ? "yellow"
                               : "red"
                           }
-                          fontSize="md"
+                          fontSize={{ base: "xs", md: "sm" }}
+                          borderRadius="md"
                         >
                           {stats.summary.winRate}%
                         </Badge>
@@ -650,17 +821,19 @@ const Profile = () => {
         </Grid>
 
         {/* Modal de Edição */}
-        <Modal isOpen={isOpen} onClose={onClose} size="xl">
+        <Modal isOpen={isOpen} onClose={onClose} size="xl" isCentered>
           <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>Editar Meu Perfil</ModalHeader>
+          <ModalContent mx={4} borderRadius="lg">
+            <ModalHeader color="primary.900">Editar Meu Perfil</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
               <form onSubmit={handleSubmit(onSubmit)}>
                 <VStack spacing={4} align="stretch">
                   {/* Nome */}
                   <FormControl isInvalid={errors.name}>
-                    <FormLabel>Nome Completo</FormLabel>
+                    <FormLabel color="primary.900" fontWeight="semibold">
+                      Nome Completo
+                    </FormLabel>
                     <Input
                       {...register("name", {
                         required: "Nome é obrigatório",
@@ -670,13 +843,20 @@ const Profile = () => {
                         },
                       })}
                       placeholder="Digite o nome completo"
+                      borderRadius="lg"
+                      _focus={{
+                        borderColor: "primary.900",
+                        boxShadow: "0 0 0 1px primary.900",
+                      }}
                     />
                     <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
                   </FormControl>
 
                   {/* Telefone */}
                   <FormControl isInvalid={errors.phone}>
-                    <FormLabel>Telefone</FormLabel>
+                    <FormLabel color="primary.900" fontWeight="semibold">
+                      Telefone
+                    </FormLabel>
                     <Input
                       {...register("phone", {
                         required: "Telefone é obrigatório",
@@ -686,13 +866,20 @@ const Profile = () => {
                         },
                       })}
                       placeholder="(11) 99999-9999"
+                      borderRadius="lg"
+                      _focus={{
+                        borderColor: "primary.900",
+                        boxShadow: "0 0 0 1px primary.900",
+                      }}
                     />
                     <FormErrorMessage>{errors.phone?.message}</FormErrorMessage>
                   </FormControl>
 
                   {/* Data de Nascimento */}
                   <FormControl isInvalid={errors.birthdate}>
-                    <FormLabel>Data de Nascimento</FormLabel>
+                    <FormLabel color="primary.900" fontWeight="semibold">
+                      Data de Nascimento
+                    </FormLabel>
                     <Input
                       {...register("birthdate", {
                         required: "Data de nascimento é obrigatória",
@@ -703,6 +890,11 @@ const Profile = () => {
                       })}
                       placeholder="dd/mm/yyyy"
                       maxLength={10}
+                      borderRadius="lg"
+                      _focus={{
+                        borderColor: "primary.900",
+                        boxShadow: "0 0 0 1px primary.900",
+                      }}
                     />
                     <FormErrorMessage>
                       {errors.birthdate?.message}
@@ -711,13 +903,21 @@ const Profile = () => {
 
                   {/* Score */}
                   <FormControl>
-                    <FormLabel>Pontuação</FormLabel>
+                    <FormLabel color="primary.900" fontWeight="semibold">
+                      Pontuação
+                    </FormLabel>
                     <Controller
                       name="score"
                       control={control}
                       render={({ field }) => (
                         <NumberInput {...field} min={0} max={1000}>
-                          <NumberInputField />
+                          <NumberInputField
+                            borderRadius="lg"
+                            _focus={{
+                              borderColor: "primary.900",
+                              boxShadow: "0 0 0 1px primary.900",
+                            }}
+                          />
                           <NumberInputStepper>
                             <NumberIncrementStepper />
                             <NumberDecrementStepper />
@@ -729,11 +929,19 @@ const Profile = () => {
 
                   {/* Posições */}
                   <FormControl>
-                    <FormLabel>Posições</FormLabel>
+                    <FormLabel color="primary.900" fontWeight="semibold">
+                      Posições
+                    </FormLabel>
                     <VStack align="start" spacing={3}>
-                      <HStack spacing={2}>
+                      <HStack spacing={2} w="full">
                         <Select
                           placeholder="Selecione uma posição"
+                          borderRadius="lg"
+                          w="full"
+                          _focus={{
+                            borderColor: "primary.900",
+                            boxShadow: "0 0 0 1px primary.900",
+                          }}
                           onChange={(e) => {
                             if (e.target.value) {
                               addPosition(e.target.value);
@@ -756,8 +964,9 @@ const Profile = () => {
                           <Tag
                             key={position}
                             size="lg"
-                            colorScheme="blue"
-                            variant="solid"
+                            bg="primary.100"
+                            color="primary.800"
+                            borderRadius="lg"
                           >
                             <TagLabel>{position}</TagLabel>
                             <TagCloseButton
@@ -773,7 +982,13 @@ const Profile = () => {
                   {isAdmin && (
                     <VStack spacing={4}>
                       <FormControl display="flex" alignItems="center">
-                        <FormLabel htmlFor="is_active" mb="0" flex="1">
+                        <FormLabel
+                          htmlFor="is_active"
+                          mb="0"
+                          flex="1"
+                          color="primary.900"
+                          fontWeight="semibold"
+                        >
                           Jogador Ativo
                         </FormLabel>
                         <Controller
@@ -791,7 +1006,13 @@ const Profile = () => {
                       </FormControl>
 
                       <FormControl display="flex" alignItems="center">
-                        <FormLabel htmlFor="is_montly_payer" mb="0" flex="1">
+                        <FormLabel
+                          htmlFor="is_montly_payer"
+                          mb="0"
+                          flex="1"
+                          color="primary.900"
+                          fontWeight="semibold"
+                        >
                           Mensalista
                         </FormLabel>
                         <Controller
@@ -814,16 +1035,26 @@ const Profile = () => {
             </ModalBody>
 
             <ModalFooter>
-              <Button variant="outline" mr={3} onClick={onClose}>
+              <Button
+                variant="outline"
+                mr={3}
+                onClick={onClose}
+                borderRadius="lg"
+                flex={1}
+              >
                 Cancelar
               </Button>
               <Button
-                colorScheme="blue"
+                bg="primary.900"
+                color="white"
                 onClick={handleSubmit(onSubmit)}
                 isLoading={updating}
                 loadingText="Salvando..."
+                borderRadius="lg"
+                flex={1}
+                _hover={{ bg: "primary.800" }}
               >
-                Salvar Alterações
+                Salvar
               </Button>
             </ModalFooter>
           </ModalContent>

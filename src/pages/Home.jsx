@@ -18,11 +18,13 @@ import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { useNavigate } from "react-router-dom";
 import MatchCard from "../components/MatchCard";
+import { useAuth } from "../context/AuthContext";
 
 const Home = () => {
   const [matchs, setMatchs] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
 
   const cardBg = useColorModeValue("white", "gray.800");
 
@@ -48,53 +50,92 @@ const Home = () => {
   if (loading) {
     return (
       <Center h="200px">
-        <Spinner size="xl" color="green.500" />
+        <Spinner size="xl" color="primary.900" />
       </Center>
     );
   }
 
   return (
-    <Box minH="100vh" bg="gray.50" pb="80px">
-      <Container maxW="container.xl" px={4} py={6}>
-        <VStack spacing={6} align="stretch">
+    <Box minH="100vh" bg="gray.50" pb={{ base: "24", md: "80px" }}>
+      <Container
+        maxW={{
+          base: "full",
+          sm: "container.sm",
+          md: "container.md",
+          lg: "container.xl",
+        }}
+        px={{ base: 4, md: 6 }}
+        py={{ base: 4, md: 6 }}
+      >
+        <VStack spacing={{ base: 4, md: 6 }} align="stretch">
           {/* Header */}
-          <HStack w="100%" justifyContent="space-between" alignItems="center">
-            <Box>
-              <Heading size="xl" color="gray.800" mb={0}>
+          <HStack
+            w="100%"
+            justifyContent="space-between"
+            alignItems="flex-start"
+          >
+            <Box flex="1" mr={{ base: 3, md: 4 }}>
+              <Heading
+                size={{ base: "lg", md: "xl" }}
+                color="primary.900"
+                mb={{ base: 1, md: 2 }}
+                lineHeight="shorter"
+              >
                 Início
               </Heading>
-              <Text color="gray.600" fontSize="md">
-                Gerencie e participe das partidas de futebol
-              </Text>
             </Box>
 
-            <Button
-              bg="black"
-              color="white"
-              size="lg"
-              borderRadius="full"
-              p={0}
-              m={0}
-              justifyContent="center"
-              alignItems="center"
-              _hover={{
-                bg: "gray.800",
-              }}
-              onClick={() => navigate("/create-match")}
-            >
-              <FiPlus />
-            </Button>
+            {isAdmin && (
+              <Button
+                bg="primary.900"
+                color="white"
+                size={{ base: "md", md: "lg" }}
+                borderRadius="full"
+                w={{ base: "48px", md: "56px" }}
+                h={{ base: "48px", md: "56px" }}
+                minW="auto"
+                p={0}
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                _hover={{
+                  bg: "primary.800",
+                  transform: "scale(1.05)",
+                }}
+                _active={{
+                  transform: "scale(0.95)",
+                }}
+                transition="all 0.2s"
+                onClick={() => navigate("/create-match")}
+              >
+                <FiPlus size={{ base: 20, md: 24 }} />
+              </Button>
+            )}
           </HStack>
 
           {/* Lista de Partidas */}
-          <VStack spacing={4} align="stretch">
+          <VStack spacing={{ base: 3, md: 4 }} align="stretch">
             {matchs.length === 0 ? (
-              <Card bg={cardBg} borderRadius="2xl" boxShadow="sm">
-                <CardBody p={8} textAlign="center">
-                  <Text color="gray.500" fontSize="lg">
+              <Card
+                bg={cardBg}
+                borderRadius="lg"
+                boxShadow="sm"
+                border="1px solid"
+                borderColor="gray.200"
+              >
+                <CardBody p={{ base: 6, md: 8 }} textAlign="center">
+                  <Text
+                    color="gray.500"
+                    fontSize={{ base: "md", md: "lg" }}
+                    fontWeight="medium"
+                  >
                     Nenhuma partida cadastrada
                   </Text>
-                  <Text color="gray.400" fontSize="sm" mt={2}>
+                  <Text
+                    color="gray.400"
+                    fontSize={{ base: "xs", md: "sm" }}
+                    mt={2}
+                  >
                     Crie sua primeira partida para começar!
                   </Text>
                 </CardBody>

@@ -1,211 +1,118 @@
 import {
   Box,
   Flex,
-  Heading,
-  IconButton,
   Text,
-  HStack,
   VStack,
   useColorModeValue,
   Container,
+  Button,
 } from "@chakra-ui/react";
 import {
   FiHome,
-  FiBell,
   FiUser,
-  FiPlus,
-  FiLogOut,
-  FiUserX,
-  FiShieldOff,
   FiUsers,
-  FiInbox,
   FiTrendingUp,
   FiDollarSign,
 } from "react-icons/fi";
-import { useAuth } from "../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const Navbar = () => {
-  const { logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const bg = useColorModeValue("white", "gray.800");
-  const borderColor = useColorModeValue("gray.200", "gray.700");
+
+  const navItems = [
+    {
+      icon: FiHome,
+      label: "Início",
+      path: "/",
+    },
+    {
+      icon: FiTrendingUp,
+      label: "Artilheiros",
+      path: "/top-scorers",
+    },
+    {
+      icon: FiUsers,
+      label: "Jogadores",
+      path: "/players",
+    },
+    {
+      icon: FiDollarSign,
+      label: "Financeiro",
+      path: "/financial",
+    },
+    {
+      icon: FiUser,
+      label: "Perfil",
+      path: "/profile",
+    },
+  ];
 
   return (
-    <>
-      {/* Header */}
-      <Box
-        bg={bg}
-        borderBottom="1px"
-        borderBottomColor={borderColor}
-        px={4}
-        py={4}
-      >
-        <Container maxW="container.xl">
-          <Flex align="center" justify="space-between">
-            <HStack spacing={3}>
-              <Box
-                w={10}
-                h={10}
-                bg="black"
-                borderRadius="full"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-              >
-                <Text color="white" fontSize="lg" fontWeight="bold">
-                  ⚽
-                </Text>
-              </Box>
-              <Heading as="h1" size="lg" color="gray.800">
-                Peladeiros
-              </Heading>
-            </HStack>
+    <Box
+      position="fixed"
+      bottom={0}
+      left={0}
+      right={0}
+      bg={bg}
+      borderTop="1px"
+      borderTopColor="gray.200"
+      px={{ base: 2, md: 4 }}
+      py={{ base: 2, md: 3 }}
+      zIndex={1000}
+      boxShadow="0 -2px 8px rgba(0, 0, 0, 0.08)"
+      w="100%"
+    >
+      <Container maxW="container.lg">
+        <Flex
+          justify="space-around"
+          align="center"
+          h={{ base: "60px", md: "64px" }}
+        >
+          {navItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            const Icon = item.icon;
 
-            <IconButton
-              icon={<FiLogOut />}
-              variant="ghost"
-              size="lg"
-              aria-label="Notificações"
-              position="relative"
-              onClick={() => logout()}
-            />
-          </Flex>
-        </Container>
-      </Box>
-
-      {/* Bottom Navigation */}
-      <Box
-        position="fixed"
-        bottom={0}
-        left={0}
-        right={0}
-        bg={bg}
-        borderTop="1px"
-        borderTopColor={borderColor}
-        px={4}
-        py={3}
-        zIndex={1000}
-      >
-        <Container maxW="container.xl">
-          <Flex justify="space-around" align="center">
-            <VStack spacing={1}>
-              <IconButton
-                icon={<FiHome />}
+            return (
+              <Button
+                key={item.path}
                 variant="ghost"
-                size="sm"
-                aria-label="Início"
-                onClick={() => navigate("/")}
-                color={location.pathname === "/" ? "gray.800" : "gray.600"}
-              />
-              <Text
-                fontSize="xs"
-                color={location.pathname === "/" ? "gray.800" : "gray.600"}
-                fontWeight={location.pathname === "/" ? "medium" : "normal"}
+                onClick={() => navigate(item.path)}
+                bg="transparent"
+                borderRadius="lg"
+                h={{ base: "56px", md: "60px" }}
+                minW={{ base: "60px", md: "70px" }}
+                px={{ base: 2, md: 3 }}
+                _hover={{
+                  bg: "primary.50",
+                  transform: "translateY(-2px)",
+                }}
+                _active={{
+                  transform: "translateY(0px)",
+                }}
+                transition="all 0.2s"
               >
-                Início
-              </Text>
-            </VStack>
-            <VStack spacing={1}>
-              <IconButton
-                icon={<FiTrendingUp />}
-                variant="ghost"
-                size="sm"
-                aria-label="Artilheiros"
-                onClick={() => navigate("/top-scorers")}
-                color={
-                  location.pathname === "/top-scorers" ? "gray.800" : "gray.600"
-                }
-              />
-              <Text
-                fontSize="xs"
-                color={
-                  location.pathname === "/top-scorers" ? "gray.800" : "gray.600"
-                }
-                fontWeight={
-                  location.pathname === "/top-scorers" ? "medium" : "normal"
-                }
-              >
-                Artilheiros
-              </Text>
-            </VStack>
-
-            <VStack spacing={1}>
-              <IconButton
-                icon={<FiUsers />}
-                variant="ghost"
-                size="sm"
-                aria-label="Jogadores"
-                onClick={() => navigate("/players")}
-                color={
-                  location.pathname === "/players" ? "gray.800" : "gray.600"
-                }
-              />
-              <Text
-                fontSize="xs"
-                color={
-                  location.pathname === "/players" ? "gray.800" : "gray.600"
-                }
-                fontWeight={
-                  location.pathname === "/players" ? "medium" : "normal"
-                }
-              >
-                Jogadores
-              </Text>
-            </VStack>
-
-            <VStack spacing={1}>
-              <IconButton
-                icon={<FiDollarSign />}
-                variant="ghost"
-                size="sm"
-                aria-label="Financeiro"
-                onClick={() => navigate("/financial")}
-                color={
-                  location.pathname === "/financial" ? "gray.800" : "gray.600"
-                }
-              />
-              <Text
-                fontSize="xs"
-                color={
-                  location.pathname === "/financial" ? "gray.800" : "gray.600"
-                }
-                fontWeight={
-                  location.pathname === "/financial" ? "medium" : "normal"
-                }
-              >
-                Financeiro
-              </Text>
-            </VStack>
-
-            <VStack spacing={1}>
-              <IconButton
-                icon={<FiInbox />}
-                variant="ghost"
-                size="sm"
-                aria-label="Perfil"
-                onClick={() => navigate("/profile")}
-                color={
-                  location.pathname === "/profile" ? "gray.800" : "gray.600"
-                }
-              />
-              <Text
-                fontSize="xs"
-                color={
-                  location.pathname === "/profile" ? "gray.800" : "gray.600"
-                }
-                fontWeight={
-                  location.pathname === "/profile" ? "medium" : "normal"
-                }
-              >
-                Perfil
-              </Text>
-            </VStack>
-          </Flex>
-        </Container>
-      </Box>
-    </>
+                <VStack spacing={{ base: 1, md: 1.5 }}>
+                  <Icon
+                    style={{ width: 20, height: 20 }}
+                    color={isActive ? "primary.900" : "gray.500"}
+                  />
+                  <Text
+                    fontSize={{ base: "xs", md: "sm" }}
+                    color={isActive ? "primary.900" : "gray.500"}
+                    fontWeight={isActive ? "semibold" : "medium"}
+                    lineHeight="1"
+                  >
+                    {item.label}
+                  </Text>
+                </VStack>
+              </Button>
+            );
+          })}
+        </Flex>
+      </Container>
+    </Box>
   );
 };
 
