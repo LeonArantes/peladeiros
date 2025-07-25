@@ -62,9 +62,11 @@ import {
   FiAward,
   FiUsers,
   FiLogOut,
+  FiAlertCircle,
 } from "react-icons/fi";
 import { useForm, Controller } from "react-hook-form";
 import userService from "../services/userService";
+import financialService from "../services/financialService";
 import { useAuth } from "../context/AuthContext";
 import { usePlayerStats } from "../hooks/usePlayerStats";
 
@@ -77,6 +79,8 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [selectedPositions, setSelectedPositions] = useState([]);
+  const [currentMonthPayments, setCurrentMonthPayments] = useState([]);
+  const [monthlyPaymentLoading, setMonthlyPaymentLoading] = useState(false);
 
   // Usar hook personalizado para buscar estatísticas reais
   const {
@@ -97,6 +101,66 @@ const Profile = () => {
   // Verificar se o usuário atual é admin (pode editar seu próprio perfil)
   const isAdmin = userService.isAdmin(currentUser);
 
+  // Obter mês atual no formato YYYY-MM
+  const getCurrentMonth = () => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}`;
+  };
+
+  // Formatar nome do mês para exibição
+  const formatMonthName = (monthStr) => {
+    try {
+      const [year, month] = monthStr.split("-");
+      const date = new Date(parseInt(year), parseInt(month) - 1);
+      return date.toLocaleDateString("pt-BR", {
+        month: "long",
+        year: "numeric",
+      });
+    } catch (error) {
+      console.error("Erro ao formatar nome do mês:", error);
+      return monthStr;
+    }
+  };
+
+  // Buscar mensalidades do mês atual
+  const fetchCurrentMonthPayments = async () => {
+    try {
+      setMonthlyPaymentLoading(true);
+      const currentMonth = getCurrentMonth();
+
+      const monthlyFees = await financialService.getMonthlyFeesByMonth(
+        currentMonth
+      );
+      setCurrentMonthPayments(monthlyFees);
+
+      console.log(
+        `Mensalidades carregadas para ${formatMonthName(currentMonth)}:`,
+        monthlyFees.length
+      );
+    } catch (error) {
+      console.error("Erro ao carregar mensalidades do mês:", error);
+      setCurrentMonthPayments([]);
+    } finally {
+      setMonthlyPaymentLoading(false);
+    }
+  };
+
+  // Verificar se o usuário atual está em dia com a mensalidade
+  const isCurrentUserUpToDate = () => {
+    if (!currentUser?.id || !player?.is_montly_payer) {
+      return true; // Se não é mensalista, considera como "em dia"
+    }
+
+    const payment = currentMonthPayments.find(
+      (payment) => String(payment.player_id) === String(currentUser.id)
+    );
+
+    return payment ? payment.is_paid : false;
+  };
+
   const {
     register,
     handleSubmit,
@@ -111,7 +175,13 @@ const Profile = () => {
 
     try {
       setLoading(true);
-      const playerData = await userService.findById(currentUser.id);
+
+      // Carregar dados do player e mensalidades em paralelo
+      const [playerData] = await Promise.all([
+        userService.findById(currentUser.id),
+        fetchCurrentMonthPayments(), // Carregar mensalidades do mês atual
+      ]);
+
       if (playerData) {
         setPlayer(playerData);
         setSelectedPositions(playerData.playing_positions || []);
@@ -354,7 +424,7 @@ const Profile = () => {
           justify="space-between"
           align={{ base: "flex-start", md: "center" }}
           mb={{ base: 4, md: 6 }}
-          direction={{ base: "column", md: "row" }}
+          direction={{ base: "row", md: "row" }}
           gap={{ base: 3, md: 0 }}
         >
           <VStack align="start" spacing={0}>
@@ -398,6 +468,42 @@ const Profile = () => {
             </Button>
           </HStack>
         </Flex>
+
+        {/* Card de Alerta para Mensalista em Atraso */}
+        {player?.is_montly_payer &&
+          !monthlyPaymentLoading &&
+          !isCurrentUserUpToDate() && (
+            <Alert
+              status="warning"
+              borderRadius="lg"
+              mb={{ base: 4, md: 6 }}
+              border="1px solid"
+              borderColor="orange.200"
+              bg="orange.50"
+            >
+              <AlertIcon as={FiAlertCircle} color="orange.500" />
+              <Box flex="1">
+                <AlertTitle
+                  fontSize={{ base: "sm", md: "md" }}
+                  color="orange.800"
+                >
+                  Mensalidade Pendente! 💰
+                </AlertTitle>
+                <AlertDescription
+                  fontSize={{ base: "xs", md: "sm" }}
+                  color="orange.700"
+                  mt={1}
+                >
+                  Você é mensalista e ainda não pagou a mensalidade de{" "}
+                  <Text as="span" fontWeight="semibold">
+                    {formatMonthName(getCurrentMonth())}
+                  </Text>
+                  . Entre em contato com a administração para regularizar seu
+                  pagamento.
+                </AlertDescription>
+              </Box>
+            </Alert>
+          )}
 
         <Grid
           templateColumns={{ base: "1fr", lg: "2fr 1fr" }}
@@ -568,33 +674,22 @@ const Profile = () => {
                           Situação
                         </Text>
                         <VStack align="start" spacing={1}>
-                          {player.is_montly_payer && (
+                          {/* Badge de status de mensalidade */}
+                          {player.is_montly_payer && !monthlyPaymentLoading && (
                             <Badge
-                              bg="primary.100"
-                              color="primary.800"
+                              colorScheme={
+                                isCurrentUserUpToDate() ? "green" : "orange"
+                              }
                               variant="subtle"
                               borderRadius="md"
                               fontSize="xs"
+                              display="flex"
+                              alignItems="center"
+                              gap={1}
                             >
-                              Mensalista
-                            </Badge>
-                          )}
-                          <Badge
-                            colorScheme={player.is_active ? "green" : "gray"}
-                            variant={player.is_active ? "subtle" : "outline"}
-                            borderRadius="md"
-                            fontSize="xs"
-                          >
-                            {player.is_active ? "Ativo" : "Inativo"}
-                          </Badge>
-                          {player.is_admin && (
-                            <Badge
-                              colorScheme="purple"
-                              variant="subtle"
-                              borderRadius="md"
-                              fontSize="xs"
-                            >
-                              Administrador
+                              {isCurrentUserUpToDate()
+                                ? "Mensalista em dia"
+                                : "Pendente"}
                             </Badge>
                           )}
                         </VStack>

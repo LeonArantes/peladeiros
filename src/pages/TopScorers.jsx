@@ -77,7 +77,6 @@ const ScorerCard = ({ scorer, onClick }) => {
     return null;
   };
 
-  const PositionIcon = getPositionIcon(scorer.position);
   const positionColor = getPositionColor(scorer.position);
 
   return (

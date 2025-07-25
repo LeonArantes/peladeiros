@@ -8,10 +8,16 @@ import {
   Flex,
 } from "@chakra-ui/react";
 import { useAuth } from "../context/AuthContext";
-import { FiChevronRight, FiTarget, FiUser, FiShield } from "react-icons/fi";
+import {
+  FiChevronRight,
+  FiTarget,
+  FiUser,
+  FiShield,
+  FiCheck,
+} from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
-const PlayerCard = ({ player }) => {
+const PlayerCard = ({ player, isMonthlyPayerUpToDate = false }) => {
   const navigate = useNavigate();
 
   // Formatação das posições
@@ -100,31 +106,6 @@ const PlayerCard = ({ player }) => {
 
           {/* Badges de status - layout responsivo */}
           <HStack spacing={{ base: 1, md: 2 }} wrap="wrap" w="full">
-            <Badge
-              colorScheme={player?.is_active ? "green" : "gray"}
-              variant={player?.is_active ? "subtle" : "outline"}
-              fontSize="xs"
-              borderRadius="md"
-              px={2}
-              py={1}
-            >
-              {player?.is_active ? "Ativo" : "Inativo"}
-            </Badge>
-
-            {player?.is_montly_payer && (
-              <Badge
-                bg="primary.100"
-                color="primary.800"
-                variant="subtle"
-                fontSize="xs"
-                borderRadius="md"
-                px={2}
-                py={1}
-              >
-                Mensalista
-              </Badge>
-            )}
-
             {player?.is_admin && (
               <Badge
                 colorScheme="purple"
@@ -134,7 +115,37 @@ const PlayerCard = ({ player }) => {
                 px={2}
                 py={1}
               >
-                Admin
+                Adm
+              </Badge>
+            )}
+
+            {player?.is_montly_payer && isMonthlyPayerUpToDate && (
+              <Badge
+                colorScheme="green"
+                variant="subtle"
+                fontSize="xs"
+                borderRadius="md"
+                px={2}
+                py={1}
+                display="flex"
+                alignItems="center"
+                gap={1}
+              >
+                <FiCheck size={10} />
+                Mensalista
+              </Badge>
+            )}
+
+            {player?.is_montly_payer && !isMonthlyPayerUpToDate && (
+              <Badge
+                colorScheme="orange"
+                variant="subtle"
+                fontSize="xs"
+                borderRadius="md"
+                px={2}
+                py={1}
+              >
+                Mensalista
               </Badge>
             )}
           </HStack>

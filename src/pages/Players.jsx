@@ -16,6 +16,7 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import userService from "../services/userService";
+import financialService from "../services/financialService";
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
 import PlayerCard from "../components/PlayerCard";
@@ -76,9 +77,34 @@ const Players = () => {
   const [loading, setLoading] = useState(true);
   const [players, setPlayers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentMonthPayments, setCurrentMonthPayments] = useState([]);
   const { user: currentUser, isAdmin } = useAuth();
   const userIsAdmin = isAdmin();
   const navigate = useNavigate();
+
+  // Obter mês atual no formato YYYY-MM
+  const getCurrentMonth = () => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}`;
+  };
+
+  // Formatar nome do mês para exibição
+  const formatMonthName = (monthStr) => {
+    try {
+      const [year, month] = monthStr.split("-");
+      const date = new Date(parseInt(year), parseInt(month) - 1);
+      return date.toLocaleDateString("pt-BR", {
+        month: "long",
+        year: "numeric",
+      });
+    } catch (error) {
+      console.error("Erro ao formatar nome do mês:", error);
+      return monthStr;
+    }
+  };
 
   const fetchPlayers = async () => {
     try {
@@ -90,14 +116,65 @@ const Players = () => {
       setPlayers(otherPlayers);
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const fetchCurrentMonthPayments = async () => {
+    try {
+      const currentMonth = getCurrentMonth();
+
+      const monthlyFees = await financialService.getMonthlyFeesByMonth(
+        currentMonth
+      );
+      setCurrentMonthPayments(monthlyFees);
+
+      console.log(
+        `Mensalidades carregadas para ${formatMonthName(currentMonth)}:`,
+        monthlyFees.length
+      );
+    } catch (error) {
+      console.error("Erro ao carregar mensalidades do mês:", error);
+      setCurrentMonthPayments([]);
+    }
+  };
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+
+      // Carregar dados em paralelo
+      await Promise.all([fetchPlayers(), fetchCurrentMonthPayments()]);
+    } catch (error) {
+      console.error("Erro ao carregar dados:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchPlayers();
+    loadData();
   }, [currentUser?.id]);
+
+  // Verificar se um jogador mensalista está em dia
+  const isMonthlyPayerUpToDate = (playerId) => {
+    if (!playerId) {
+      return false;
+    }
+
+    // Só verificar para jogadores que são mensalistas
+    const player = players.find((p) => String(p.id) === String(playerId));
+    if (!player || !player.is_montly_payer) {
+      return false; // Não é mensalista, então não aplicar lógica de mensalidade
+    }
+
+    const payment = currentMonthPayments.find(
+      (payment) => String(payment.player_id) === String(playerId)
+    );
+
+    const isUpToDate = payment ? payment.is_paid : false;
+
+    return isUpToDate;
+  };
 
   // Filtrar jogadores com base na pesquisa
   const filteredPlayers = players.filter((player) =>
@@ -239,7 +316,11 @@ const Players = () => {
         ) : (
           <VStack spacing={{ base: 3, md: 4 }} align="stretch">
             {filteredPlayers.map((player) => (
-              <PlayerCard key={player.id} player={player} />
+              <PlayerCard
+                key={player.id}
+                player={player}
+                isMonthlyPayerUpToDate={isMonthlyPayerUpToDate(player.id)}
+              />
             ))}
 
             {/* Estado vazio quando não há jogadores */}

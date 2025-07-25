@@ -64,7 +64,7 @@ const Navbar = () => {
       boxShadow="0 -2px 8px rgba(0, 0, 0, 0.08)"
       w="100%"
     >
-      <Container maxW="container.lg">
+      <Box maxW="container.lg">
         <Flex
           justify="space-around"
           align="center"
@@ -111,7 +111,7 @@ const Navbar = () => {
             );
           })}
         </Flex>
-      </Container>
+      </Box>
     </Box>
   );
 };

@@ -1,5 +1,6 @@
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../config/firebase";
+import userService from "./userService";
 
 class PlayerStatsService {
   constructor() {
@@ -243,15 +244,28 @@ class PlayerStatsService {
         if (!playerGoals[goal.playerId]) {
           playerGoals[goal.playerId] = {
             playerId: goal.playerId,
-            playerName: goal.playerName,
             goals: 0,
           };
         }
         playerGoals[goal.playerId].goals++;
       });
 
-      // Converter para array e ordenar
-      const ranking = Object.values(playerGoals)
+      // Converter para array, buscar nomes e ordenar
+      const playersArray = Object.values(playerGoals);
+
+      // Buscar nomes dos jogadores dinamicamente
+      const rankingWithNames = await Promise.all(
+        playersArray.map(async (player) => {
+          const playerName = await this.getPlayerName(player.playerId);
+          return {
+            ...player,
+            playerName,
+          };
+        })
+      );
+
+      // Ordenar por gols e limitar
+      const ranking = rankingWithNames
         .sort((a, b) => b.goals - a.goals)
         .slice(0, limit);
 
@@ -259,6 +273,17 @@ class PlayerStatsService {
     } catch (error) {
       console.error("Erro ao buscar ranking de gols:", error);
       return [];
+    }
+  }
+
+  // Buscar nome do jogador pelo ID
+  async getPlayerName(playerId) {
+    try {
+      const userData = await userService.findById(playerId);
+      return userData?.name || userData?.display_name || "Jogador";
+    } catch (error) {
+      console.warn("Erro ao buscar nome do jogador:", error);
+      return "Jogador";
     }
   }
 }

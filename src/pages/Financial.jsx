@@ -88,6 +88,7 @@ export default function Financial() {
 
   // Estados para dados reais do Firebase
   const [transactions, setTransactions] = useState([]);
+  const [allTransactions, setAllTransactions] = useState([]); // Todas as transações para cálculos
   const [allPlayers, setAllPlayers] = useState([]);
   const [monthlyPayments, setMonthlyPayments] = useState([]);
   const [monthlyFeeValue, setMonthlyFeeValue] = useState(30);
@@ -127,7 +128,12 @@ export default function Financial() {
 
   // Carregar dados iniciais
   useEffect(() => {
-    loadFinancialData();
+    const initializeData = async () => {
+      await loadFinancialData();
+      await loadMonthlyPayments();
+      await loadAllTransactionsForStats(); // Carregar todas as transações para cálculos
+    };
+    initializeData();
   }, []);
 
   // Recarregar mensalidades quando o mês selecionado mudar
@@ -158,7 +164,7 @@ export default function Financial() {
 
       // Carregar dados em paralelo
       const [transactionsResult, playersData] = await Promise.all([
-        financialService.getTransactionsPaginated(10), // Carregar apenas 10 primeiras
+        financialService.getTransactionsPaginated(10), // Carregar apenas 10 primeiras para interface
         userService.findAll(),
       ]);
 
@@ -169,9 +175,6 @@ export default function Financial() {
         loadingMore: false,
       });
       setAllPlayers(playersData);
-
-      // Carregar mensalidades do mês atual após ter os jogadores
-      await loadMonthlyPayments();
 
       console.log("Dados financeiros carregados:", {
         transactionsData: transactionsResult.transactions.length,
@@ -189,6 +192,19 @@ export default function Financial() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Função para calcular estatísticas com todas as transações
+  const loadAllTransactionsForStats = async () => {
+    try {
+      // Carregar TODAS as transações para cálculo correto dos stats
+      const allTransactionsResult =
+        await financialService.getTransactionsPaginated(1000);
+      setAllTransactions(allTransactionsResult.transactions);
+    } catch (error) {
+      console.error("Erro ao carregar todas as transações:", error);
+      setAllTransactions([]);
     }
   };
 
@@ -323,13 +339,26 @@ export default function Financial() {
 
   // Calcular saldo e estatísticas usando dados reais
   const calculateStats = () => {
-    const totalEntradas = transactions
-      .filter((t) => t.type === "entrada")
-      .reduce((sum, t) => sum + t.amount, 0);
+    // Verificar se há dados carregados
+    if (allTransactions.length === 0) {
+      return {
+        totalEntradas: 0,
+        totalSaidas: 0,
+        saldoAtual: 0,
+        jogadoresPagos: monthlyPayments.filter((p) => p.is_paid === true)
+          .length,
+        jogadoresPendentes: monthlyPayments.filter((p) => p.is_paid === false)
+          .length,
+      };
+    }
 
-    const totalSaidas = transactions
+    const totalEntradas = allTransactions
+      .filter((t) => t.type === "entrada")
+      .reduce((sum, t) => sum + (t.amount || 0), 0);
+
+    const totalSaidas = allTransactions
       .filter((t) => t.type === "saida")
-      .reduce((sum, t) => sum + t.amount, 0);
+      .reduce((sum, t) => sum + (t.amount || 0), 0);
 
     const saldoAtual = totalEntradas - totalSaidas;
 
@@ -396,8 +425,9 @@ export default function Financial() {
         transactionData
       );
 
-      // Atualizar estado local
-      setTransactions([newTransaction, ...transactions]);
+      // Recarregar todos os dados financeiros para atualizar os valores
+      await loadFinancialData();
+      await loadAllTransactionsForStats(); // Recarregar todas as transações
 
       resetTransaction();
       onTransactionClose();
@@ -482,8 +512,12 @@ export default function Financial() {
 
       console.log("Resultado da criação em lote:", result);
 
-      // Recarregar mensalidades para refletir as mudanças
-      await loadMonthlyPayments();
+      // Recarregar todos os dados financeiros para atualizar os valores
+      await Promise.all([
+        loadFinancialData(), // Recarregar dados completos incluindo transações
+        loadMonthlyPayments(), // Recarregar mensalidades
+        loadAllTransactionsForStats(), // Recarregar todas as transações
+      ]);
 
       resetMensalistas();
       onMensalistasClose();
@@ -596,10 +630,11 @@ export default function Financial() {
         }
       );
 
-      // Recarregar dados para refletir as mudanças
+      // Recarregar todos os dados financeiros para atualizar os valores
       await Promise.all([
+        loadFinancialData(), // Recarregar dados completos incluindo transações
         loadMonthlyPayments(), // Recarregar mensalidades
-        loadTransactions(), // Recarregar transações se foi criada/removida uma
+        loadAllTransactionsForStats(), // Recarregar todas as transações
       ]);
 
       const payment = monthlyPayments.find((p) => p.id === paymentId);
@@ -637,24 +672,6 @@ export default function Financial() {
     }
   };
 
-  // Função auxiliar para recarregar apenas transações
-  const loadTransactions = async () => {
-    try {
-      // Recarregar transações mantendo a paginação atual
-      const result = await financialService.getTransactionsPaginated(
-        transactions.length || 10
-      );
-      setTransactions(result.transactions);
-      setTransactionsPagination({
-        hasNextPage: result.hasNextPage,
-        lastDoc: result.lastDoc,
-        loadingMore: false,
-      });
-    } catch (error) {
-      console.error("Erro ao recarregar transações:", error);
-    }
-  };
-
   // Remover mensalista de um mês específico
   const handleRemoveMonthlyFee = async (monthlyFeeId, playerName) => {
     // Armazenar dados da mensalidade e abrir modal de confirmação
@@ -674,10 +691,11 @@ export default function Financial() {
       // Usar o service para remover a taxa mensal
       await financialService.deleteMonthlyFee(paymentToDelete.id);
 
-      // Recarregar dados para refletir as mudanças
+      // Recarregar todos os dados financeiros para atualizar os valores
       await Promise.all([
+        loadFinancialData(), // Recarregar dados completos incluindo transações
         loadMonthlyPayments(), // Recarregar mensalidades
-        loadTransactions(), // Recarregar transações (caso tenha removido uma)
+        loadAllTransactionsForStats(), // Recarregar todas as transações
       ]);
 
       // Fechar modal e limpar estado
@@ -743,8 +761,9 @@ export default function Financial() {
       // Usar o service para remover a transação
       await financialService.deleteTransaction(transactionToDelete.id);
 
-      // Recarregar transações
-      await loadTransactions();
+      // Recarregar todos os dados financeiros para atualizar os valores
+      await loadFinancialData();
+      await loadAllTransactionsForStats(); // Recarregar todas as transações
 
       // Fechar modal e limpar estado
       onDeleteTransactionClose();
@@ -794,36 +813,37 @@ export default function Financial() {
 
   // Componente de Card de Estatística Minimalista
   const StatsCard = ({ stats, players }) => (
-    <VStack spacing={{ base: 4, md: 6 }} mb={{ base: 6, md: 8 }}>
+    <VStack spacing={{ base: 3, md: 4 }} mb={{ base: 4, md: 6 }}>
+      {/* Card Principal - Saldo Atual */}
       <Card
         borderRadius="lg"
-        boxShadow="md"
+        boxShadow="sm"
         border="2px solid"
         borderColor={stats.saldoAtual >= 0 ? "green.200" : "red.200"}
         bg={stats.saldoAtual >= 0 ? "green.50" : "red.50"}
         w="full"
       >
-        <CardBody p={{ base: 6, md: 8 }} textAlign="center">
-          <VStack spacing={{ base: 3, md: 4 }}>
+        <CardBody p={{ base: 4, md: 5 }} textAlign="center">
+          <VStack spacing={{ base: 2, md: 3 }}>
             <Box
-              p={3}
-              borderRadius="xl"
+              p={2}
+              borderRadius="lg"
               bg={stats.saldoAtual >= 0 ? "green.100" : "red.100"}
               color={stats.saldoAtual >= 0 ? "green.600" : "red.600"}
             >
-              <Icon as={FiDollarSign} size={24} />
+              <Icon as={FiDollarSign} size={20} />
             </Box>
             <Text
-              fontSize={{ base: "sm", md: "md" }}
-              color="gray.700"
-              fontWeight="semibold"
+              fontSize={{ base: "xs", md: "sm" }}
+              color="gray.600"
+              fontWeight="medium"
               textTransform="uppercase"
               letterSpacing="wide"
             >
-              Saldo Atual da Pelada
+              Saldo Atual
             </Text>
             <Text
-              fontSize={{ base: "2xl", md: "3xl" }}
+              fontSize={{ base: "xl", md: "2xl" }}
               fontWeight="bold"
               color={stats.saldoAtual >= 0 ? "green.600" : "red.600"}
               lineHeight="none"
@@ -833,64 +853,71 @@ export default function Financial() {
           </VStack>
         </CardBody>
       </Card>
-      {/* Cards Entradas e Saídas */}
-      <Card
-        borderRadius="lg"
-        boxShadow="sm"
-        border="1px solid"
-        borderColor="gray.200"
-        w="full"
-      >
-        <CardBody p={{ base: 4, md: 6 }}>
-          <Grid templateColumns="repeat(2, 1fr)" gap={{ base: 6, md: 8 }}>
-            {/* Total Entradas */}
-            <VStack spacing={2} align="center">
-              <Box p={2} borderRadius="lg" bg="gray.100" color="gray.600">
-                <Icon as={FiPlus} size={16} />
+
+      {/* Cards Entradas e Saídas - Compactos */}
+      <Grid templateColumns="repeat(2, 1fr)" gap={{ base: 3, md: 4 }} w="full">
+        {/* Total Entradas */}
+        <Card
+          borderRadius="lg"
+          boxShadow="sm"
+          border="1px solid"
+          borderColor="gray.200"
+          bg="white"
+        >
+          <CardBody p={{ base: 3, md: 4 }} textAlign="center">
+            <VStack spacing={2}>
+              <Box p={1} borderRadius="md" bg="green.100" color="green.600">
+                <Icon as={FiPlus} size={14} />
               </Box>
               <Text
                 fontSize={{ base: "xs", md: "sm" }}
                 color="gray.600"
                 fontWeight="medium"
-                textAlign="center"
               >
                 Entradas
               </Text>
               <Text
-                fontSize={{ base: "md", md: "lg" }}
+                fontSize={{ base: "sm", md: "md" }}
                 fontWeight="bold"
-                color="primary.900"
+                color="green.600"
               >
                 R$ {stats.totalEntradas.toFixed(2)}
               </Text>
             </VStack>
+          </CardBody>
+        </Card>
 
-            {/* Total Saídas */}
-            <VStack spacing={2} align="center">
-              <Box p={2} borderRadius="lg" bg="gray.100" color="gray.600">
-                <Icon as={FiMinus} size={16} />
+        {/* Total Saídas */}
+        <Card
+          borderRadius="lg"
+          boxShadow="sm"
+          border="1px solid"
+          borderColor="gray.200"
+          bg="white"
+        >
+          <CardBody p={{ base: 3, md: 4 }} textAlign="center">
+            <VStack spacing={2}>
+              <Box p={1} borderRadius="md" bg="red.100" color="red.600">
+                <Icon as={FiMinus} size={14} />
               </Box>
               <Text
                 fontSize={{ base: "xs", md: "sm" }}
                 color="gray.600"
                 fontWeight="medium"
-                textAlign="center"
               >
                 Saídas
               </Text>
               <Text
-                fontSize={{ base: "md", md: "lg" }}
+                fontSize={{ base: "sm", md: "md" }}
                 fontWeight="bold"
-                color="primary.900"
+                color="red.600"
               >
                 R$ {stats.totalSaidas.toFixed(2)}
               </Text>
             </VStack>
-          </Grid>
-        </CardBody>
-      </Card>
-
-      {/* Card Saldo Atual - Maior e Destacado */}
+          </CardBody>
+        </Card>
+      </Grid>
     </VStack>
   );
 
@@ -1298,7 +1325,7 @@ export default function Financial() {
                         _hover={{ bg: "primary.800" }}
                         flex={1}
                       >
-                        Adicionar ao Mês
+                        Adicionar
                       </Button>
                     )}
                   </HStack>

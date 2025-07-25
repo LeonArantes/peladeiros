@@ -8,15 +8,76 @@ import {
   where,
   orderBy,
   serverTimestamp,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
+import userService from "./userService";
 
 class GoalService {
   constructor() {
     this.collectionName = "goals";
   }
 
-  // Buscar todos os gols de uma partida
+  // Buscar nome do jogador pelo ID
+  async getPlayerName(playerId) {
+    try {
+      const userData = await userService.findById(playerId);
+      return userData?.name || userData?.display_name || "Jogador";
+    } catch (error) {
+      console.warn("Erro ao buscar nome do jogador:", error);
+      return "Jogador";
+    }
+  }
+
+  // Método de migração: remover campo playerName dos gols existentes
+  async migrateRemovePlayerNameField() {
+    try {
+      console.log("🔄 Iniciando migração para remover campo playerName...");
+
+      const goalsQuery = query(collection(db, this.collectionName));
+      const querySnapshot = await getDocs(goalsQuery);
+
+      let migratedCount = 0;
+      let totalCount = querySnapshot.size;
+
+      console.log(`📊 Total de gols encontrados: ${totalCount}`);
+
+      for (const goalDoc of querySnapshot.docs) {
+        const goalData = goalDoc.data();
+
+        // Se o gol tem o campo playerName, removê-lo
+        if (goalData.hasOwnProperty("playerName")) {
+          const goalRef = doc(db, this.collectionName, goalDoc.id);
+
+          // Criar objeto sem o playerName
+          const { playerName, ...updatedGoalData } = goalData;
+
+          await updateDoc(goalRef, updatedGoalData);
+          migratedCount++;
+
+          console.log(
+            `✅ Gol ${goalDoc.id} migrado (removido playerName: "${playerName}")`
+          );
+        }
+      }
+
+      console.log(
+        `🎉 Migração concluída! ${migratedCount} de ${totalCount} gols migrados.`
+      );
+
+      return {
+        success: true,
+        totalGoals: totalCount,
+        migratedGoals: migratedCount,
+        skippedGoals: totalCount - migratedCount,
+      };
+    } catch (error) {
+      console.error("❌ Erro na migração:", error);
+      throw new Error("Erro ao migrar dados dos gols.");
+    }
+  }
+
+  // Buscar todos os gols de uma partida com nomes dos jogadores
   async findByMatchId(matchId) {
     try {
       if (!matchId) {
@@ -32,14 +93,21 @@ class GoalService {
       const querySnapshot = await getDocs(goalsQuery);
       const goals = [];
 
-      querySnapshot.forEach((doc) => {
+      // Buscar gols e seus respectivos nomes de jogadores
+      for (const goalDoc of querySnapshot.docs) {
+        const goalData = goalDoc.data();
+
+        // Buscar nome do jogador dinamicamente
+        const playerName = await this.getPlayerName(goalData.playerId);
+
         goals.push({
-          id: doc.id,
-          ...doc.data(),
+          id: goalDoc.id,
+          ...goalData,
+          playerName, // Nome buscado dinamicamente
           // Converter timestamp do Firestore para Date se necessário
-          timestamp: doc.data().timestamp?.toDate() || new Date(),
+          timestamp: goalData.timestamp?.toDate() || new Date(),
         });
-      });
+      }
 
       return goals; // Retorna array vazio se não houver gols
     } catch (error) {
@@ -54,7 +122,7 @@ class GoalService {
     }
   }
 
-  // Criar um novo gol
+  // Criar um novo gol (sem salvar playerName)
   async create(goalData) {
     try {
       if (!goalData.matchId) {
@@ -62,9 +130,6 @@ class GoalService {
       }
       if (!goalData.playerId) {
         throw new Error("ID do jogador é obrigatório");
-      }
-      if (!goalData.playerName) {
-        throw new Error("Nome do jogador é obrigatório");
       }
       if (!goalData.team || !["black", "white"].includes(goalData.team)) {
         throw new Error("Time deve ser 'black' ou 'white'");
@@ -76,7 +141,7 @@ class GoalService {
       const goalToCreate = {
         matchId: goalData.matchId,
         playerId: goalData.playerId,
-        playerName: goalData.playerName,
+        // NÃO salvar playerName - será buscado dinamicamente
         team: goalData.team,
         type: goalData.type,
         timestamp: serverTimestamp(),
@@ -87,10 +152,14 @@ class GoalService {
         goalToCreate
       );
 
-      // Retornar o gol criado com o ID
+      // Buscar nome do jogador para retorno
+      const playerName = await this.getPlayerName(goalData.playerId);
+
+      // Retornar o gol criado com o ID e nome do jogador
       return {
         id: docRef.id,
         ...goalToCreate,
+        playerName, // Nome buscado dinamicamente
         timestamp: new Date(), // Para uso imediato no frontend
       };
     } catch (error) {

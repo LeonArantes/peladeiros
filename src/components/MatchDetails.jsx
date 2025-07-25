@@ -217,7 +217,7 @@ const MatchDetails = ({ match, division, onMatchUpdate }) => {
     const goalData = {
       matchId: match?.id,
       playerId: selectedPlayer,
-      playerName: playerData?.name || "Jogador",
+      // NÃO passar playerName - será buscado dinamicamente pelo service
       team: selectedTeam,
       type: goalType,
     };
@@ -430,7 +430,7 @@ const MatchDetails = ({ match, division, onMatchUpdate }) => {
                 w="full"
                 color="primary.900"
               >
-                Placar da Partida
+                Placar
               </Heading>
               <HStack
                 spacing={{ base: 2, md: 3 }}
