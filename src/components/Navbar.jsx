@@ -15,39 +15,49 @@ import {
   FiDollarSign,
 } from "react-icons/fi";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const bg = useColorModeValue("white", "gray.800");
+  const { isAdmin } = useAuth();
 
-  const navItems = [
+  const allNavItems = [
     {
       icon: FiHome,
       label: "Início",
       path: "/",
+      adminOnly: false,
     },
     {
       icon: FiTrendingUp,
       label: "Artilheiros",
       path: "/top-scorers",
+      adminOnly: false,
     },
     {
       icon: FiUsers,
       label: "Jogadores",
       path: "/players",
+      adminOnly: false,
     },
     {
       icon: FiDollarSign,
       label: "Financeiro",
       path: "/financial",
+      adminOnly: false,
     },
     {
       icon: FiUser,
       label: "Perfil",
       path: "/profile",
+      adminOnly: false,
     },
   ];
+
+  // Filtrar itens de navegação baseado no status de admin
+  const navItems = allNavItems.filter((item) => !item.adminOnly || isAdmin());
 
   return (
     <Box

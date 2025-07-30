@@ -19,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 
 const PlayerCard = ({ player, isMonthlyPayerUpToDate = false }) => {
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
 
   // Formatação das posições
   const formatPositions = (positions) => {
@@ -164,12 +165,14 @@ const PlayerCard = ({ player, isMonthlyPayerUpToDate = false }) => {
               </Text>
             </HStack>
 
-            <HStack spacing={1}>
-              <FiTarget size={12} color="primary.600" />
-              <Text fontWeight="semibold" color="primary.600">
-                {player?.score || 0}
-              </Text>
-            </HStack>
+            {isAdmin() && (
+              <HStack spacing={1}>
+                <FiTarget size={12} color="primary.600" />
+                <Text fontWeight="semibold" color="primary.600">
+                  {player?.score || 0}
+                </Text>
+              </HStack>
+            )}
           </HStack>
         </VStack>
 

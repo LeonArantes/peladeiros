@@ -40,7 +40,6 @@ function App() {
                     <Route path="/create-player" element={<CreatePlayer />} />
                     <Route path="/top-scorers" element={<TopScorers />} />
                     <Route path="/financial" element={<Financial />} />
-                    {/* Redirecionar qualquer rota desconhecida para home */}
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </Box>

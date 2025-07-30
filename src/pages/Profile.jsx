@@ -72,7 +72,7 @@ import { usePlayerStats } from "../hooks/usePlayerStats";
 
 const Profile = () => {
   const toast = useToast();
-  const { user: currentUser, logout } = useAuth();
+  const { user: currentUser, logout, isAdmin } = useAuth();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [player, setPlayer] = useState(null);
@@ -99,7 +99,6 @@ const Profile = () => {
   ];
 
   // Verificar se o usuário atual é admin (pode editar seu próprio perfil)
-  const isAdmin = userService.isAdmin(currentUser);
 
   // Obter mês atual no formato YYYY-MM
   const getCurrentMonth = () => {
@@ -590,7 +589,7 @@ const Profile = () => {
                 </CardBody>
               </Card>
 
-              {/* Dados do Jogo */}
+              {/* Dados do Jogo - apenas para admin */}
               <Card
                 borderRadius="lg"
                 boxShadow="sm"
@@ -604,29 +603,31 @@ const Profile = () => {
                 </CardHeader>
                 <CardBody pt={0} p={{ base: 4, md: 6 }}>
                   <VStack spacing={{ base: 3, md: 4 }} align="stretch">
-                    <HStack spacing={{ base: 2, md: 3 }}>
-                      <FiTarget size={16} color="primary.600" />
-                      <VStack align="start" spacing={0} flex={1}>
-                        <Text
-                          fontSize={{ base: "xs", md: "sm" }}
-                          color="gray.600"
-                          fontWeight="medium"
-                        >
-                          Pontuação
-                        </Text>
-                        <Badge
-                          bg="primary.100"
-                          color="primary.800"
-                          fontSize={{ base: "sm", md: "md" }}
-                          px={3}
-                          py={1}
-                          borderRadius="lg"
-                          fontWeight="semibold"
-                        >
-                          {player.score || 0} pontos
-                        </Badge>
-                      </VStack>
-                    </HStack>
+                    {isAdmin() && (
+                      <HStack spacing={{ base: 2, md: 3 }}>
+                        <FiTarget size={16} color="primary.600" />
+                        <VStack align="start" spacing={0} flex={1}>
+                          <Text
+                            fontSize={{ base: "xs", md: "sm" }}
+                            color="gray.600"
+                            fontWeight="medium"
+                          >
+                            Pontuação
+                          </Text>
+                          <Badge
+                            bg="primary.100"
+                            color="primary.800"
+                            fontSize={{ base: "sm", md: "md" }}
+                            px={3}
+                            py={1}
+                            borderRadius="lg"
+                            fontWeight="semibold"
+                          >
+                            {player.score || 0} pontos
+                          </Badge>
+                        </VStack>
+                      </HStack>
+                    )}
 
                     <HStack align="start" spacing={{ base: 2, md: 3 }}>
                       <FiShield size={16} color="gray.500" />
@@ -996,31 +997,33 @@ const Profile = () => {
                     </FormErrorMessage>
                   </FormControl>
 
-                  {/* Score */}
-                  <FormControl>
-                    <FormLabel color="primary.900" fontWeight="semibold">
-                      Pontuação
-                    </FormLabel>
-                    <Controller
-                      name="score"
-                      control={control}
-                      render={({ field }) => (
-                        <NumberInput {...field} min={0} max={1000}>
-                          <NumberInputField
-                            borderRadius="lg"
-                            _focus={{
-                              borderColor: "primary.900",
-                              boxShadow: "0 0 0 1px primary.900",
-                            }}
-                          />
-                          <NumberInputStepper>
-                            <NumberIncrementStepper />
-                            <NumberDecrementStepper />
-                          </NumberInputStepper>
-                        </NumberInput>
-                      )}
-                    />
-                  </FormControl>
+                  {/* Score - apenas para admin */}
+                  {isAdmin() && (
+                    <FormControl>
+                      <FormLabel color="primary.900" fontWeight="semibold">
+                        Pontuação
+                      </FormLabel>
+                      <Controller
+                        name="score"
+                        control={control}
+                        render={({ field }) => (
+                          <NumberInput {...field} min={0} max={1000}>
+                            <NumberInputField
+                              borderRadius="lg"
+                              _focus={{
+                                borderColor: "primary.900",
+                                boxShadow: "0 0 0 1px primary.900",
+                              }}
+                            />
+                            <NumberInputStepper>
+                              <NumberIncrementStepper />
+                              <NumberDecrementStepper />
+                            </NumberInputStepper>
+                          </NumberInput>
+                        )}
+                      />
+                    </FormControl>
+                  )}
 
                   {/* Posições */}
                   <FormControl>
@@ -1074,7 +1077,7 @@ const Profile = () => {
                   </FormControl>
 
                   {/* Configurações - só para admins */}
-                  {isAdmin && (
+                  {isAdmin() && (
                     <VStack spacing={4}>
                       <FormControl display="flex" alignItems="center">
                         <FormLabel

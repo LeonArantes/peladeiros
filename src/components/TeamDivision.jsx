@@ -41,6 +41,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useTeamDivision } from "../hooks/useTeamDivision";
 import userService from "../services/userService";
+import { useAuth } from "../context/AuthContext";
 
 // Importar escudos dos times
 import teamBlackShield from "../assets/images/team_black.jpg";
@@ -361,6 +362,7 @@ const TeamsDisplay = ({ teamBlack, teamWhite }) => {
  * Card individual do jogador
  */
 const PlayerCard = ({ player, position, color }) => {
+  const { isAdmin } = useAuth();
   const formatPositions = (positions) => {
     if (!positions || positions.length === 0) return "Não informado";
     return positions.join(", ");
@@ -399,14 +401,16 @@ const PlayerCard = ({ player, position, color }) => {
             {formatPositions(player.playing_positions)}
           </Text>
         </VStack>
-        <Badge
-          size="sm"
-          colorScheme={color === "white" ? "blue" : "orange"}
-          variant="solid"
-          fontSize="xs"
-        >
-          {player.score || 0}
-        </Badge>
+        {isAdmin() && (
+          <Badge
+            size="sm"
+            colorScheme={color === "white" ? "blue" : "orange"}
+            variant="solid"
+            fontSize="xs"
+          >
+            {player.score || 0}
+          </Badge>
+        )}
       </HStack>
     </Box>
   );
@@ -716,6 +720,7 @@ const CreateTeamsDisplay = ({
  * Jogador disponível para ser adicionado
  */
 const DraggablePlayer = ({ player, onMoveToBlack, onMoveToWhite }) => {
+  const { isAdmin } = useAuth();
   const formatPositions = (positions) => {
     if (!positions || positions.length === 0) return "Não informado";
     return positions.join(", ");
@@ -751,9 +756,11 @@ const DraggablePlayer = ({ player, onMoveToBlack, onMoveToWhite }) => {
               {formatPositions(player.userData?.playing_positions)}
             </Text>
           </VStack>
-          <Badge size="sm" colorScheme="blue" variant="solid" fontSize="xs">
-            {player.userData?.score || 0}
-          </Badge>
+          {isAdmin() && (
+            <Badge size="sm" colorScheme="blue" variant="solid" fontSize="xs">
+              {player.userData?.score || 0}
+            </Badge>
+          )}
         </HStack>
         <HStack spacing={2} justify="center">
           <Box
@@ -811,6 +818,7 @@ const DraggablePlayer = ({ player, onMoveToBlack, onMoveToWhite }) => {
  * Jogador já atribuído a um time
  */
 const AssignedPlayer = ({ player, onRemove, onMoveToOtherTeam, color }) => {
+  const { isAdmin } = useAuth();
   const formatPositions = (positions) => {
     if (!positions || positions.length === 0) return "Não informado";
     return positions.join(", ");
@@ -847,14 +855,16 @@ const AssignedPlayer = ({ player, onRemove, onMoveToOtherTeam, color }) => {
           >
             {formatPositions(player.userData?.playing_positions)}
           </Text>
-          <Badge
-            size="sm"
-            colorScheme={color !== "black" ? "blue" : "orange"}
-            variant="solid"
-            fontSize="xs"
-          >
-            {player.userData?.score || 0}
-          </Badge>
+          {isAdmin() && (
+            <Badge
+              size="sm"
+              colorScheme={color !== "black" ? "blue" : "orange"}
+              variant="solid"
+              fontSize="xs"
+            >
+              {player.userData?.score || 0}
+            </Badge>
+          )}
         </VStack>
         <HStack spacing={1}>
           <IconButton
