@@ -132,13 +132,6 @@ const Home = () => {
                   >
                     Nenhuma partida cadastrada
                   </Text>
-                  <Text
-                    color="gray.400"
-                    fontSize={{ base: "xs", md: "sm" }}
-                    mt={2}
-                  >
-                    Crie sua primeira partida para começar!
-                  </Text>
                 </CardBody>
               </Card>
             ) : (
