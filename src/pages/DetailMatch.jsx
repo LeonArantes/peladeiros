@@ -44,7 +44,11 @@ const DetailMatch = () => {
   const [loading, setLoading] = useState(true);
   const toast = useToast();
 
-  const { attendanceList } = useAttendance(id);
+  const { attendanceList } = useAttendance(
+    id,
+    match?.max_players,
+    match?.registration_start_date
+  );
   const { division } = useTeamDivision(match, attendanceList);
   const navigate = useNavigate();
 

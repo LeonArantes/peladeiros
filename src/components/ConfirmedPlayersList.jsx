@@ -20,7 +20,7 @@ import {
   Center,
   Divider,
 } from "@chakra-ui/react";
-import { FiUserPlus, FiUserMinus, FiUser, FiUserCheck } from "react-icons/fi";
+import { FiUserPlus, FiUserMinus, FiClock } from "react-icons/fi";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useAttendance } from "../hooks/useAttendance";
@@ -43,10 +43,11 @@ const ConfirmedPlayersList = ({ match }) => {
     canJoin,
     canLeave,
     isUserAdmin,
+    isRegistrationOpen,
     joinMatch,
     leaveMatch,
     removeUser,
-  } = useAttendance(match.id, maxPlayers);
+  } = useAttendance(match.id, maxPlayers, match.registration_start_date);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef();
@@ -184,6 +185,39 @@ const ConfirmedPlayersList = ({ match }) => {
         >
           Sair da Lista
         </Button>
+      ) : !isRegistrationOpen &&
+        match?.status !== "Finalizada" &&
+        !userInList ? (
+        <VStack spacing={2}>
+          <Button
+            leftIcon={<FiClock size={16} />}
+            variant="outline"
+            borderColor="orange.300"
+            color="orange.600"
+            isDisabled
+            size={{ base: "sm", md: "md" }}
+            borderRadius="lg"
+          >
+            Lista ainda não aberta
+          </Button>
+          {match?.registration_start_date && (
+            <Text
+              fontSize="xs"
+              color="gray.600"
+              textAlign="center"
+              fontStyle="italic"
+            >
+              Abre em:{" "}
+              {format(
+                match.registration_start_date.toDate
+                  ? match.registration_start_date.toDate()
+                  : new Date(match.registration_start_date),
+                "dd/MM/yyyy 'às' HH:mm",
+                { locale: ptBR }
+              )}
+            </Text>
+          )}
+        </VStack>
       ) : isListFull ? (
         <Button
           leftIcon={<FiUserPlus size={16} />}

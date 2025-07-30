@@ -7,8 +7,15 @@ import { useAuth } from "../context/AuthContext";
 /**
  * Hook customizado para gerenciar lista de presença
  * Separa a lógica de negócio da interface do usuário
+ * @param {string} matchId - ID da partida
+ * @param {number} maxPlayers - Número máximo de jogadores (padrão: 14)
+ * @param {Date|Timestamp} registrationStartDate - Data/hora de abertura da lista (opcional)
  */
-export const useAttendance = (matchId, maxPlayers = 14) => {
+export const useAttendance = (
+  matchId,
+  maxPlayers = 14,
+  registrationStartDate = null
+) => {
   const { user } = useAuth();
   const toast = useToast();
 
@@ -23,6 +30,14 @@ export const useAttendance = (matchId, maxPlayers = 14) => {
   const isListFull = attendanceList.length >= maxPlayers + 4;
   const confirmedCount = Math.min(attendanceList.length, maxPlayers);
   const waitingCount = Math.max(0, attendanceList.length - maxPlayers);
+
+  // Verificar se a lista já está aberta para inscrições
+  const isRegistrationOpen = registrationStartDate
+    ? new Date() >=
+      (registrationStartDate.toDate
+        ? registrationStartDate.toDate()
+        : new Date(registrationStartDate))
+    : true; // Se não há data definida, considera que está sempre aberta
 
   /**
    * Observa mudanças na lista de presença
@@ -155,6 +170,7 @@ export const useAttendance = (matchId, maxPlayers = 14) => {
     isListFull,
     confirmedCount,
     waitingCount,
+    isRegistrationOpen,
 
     // Ações
     joinMatch,
@@ -162,7 +178,7 @@ export const useAttendance = (matchId, maxPlayers = 14) => {
     removeUser,
 
     // Verificações
-    canJoin: !userInList && !isListFull,
+    canJoin: !userInList && !isListFull && isRegistrationOpen,
     canLeave: !!userInList,
     isUserAdmin: userService.isAdmin(user),
   };
