@@ -18,6 +18,7 @@ export const useTeamDivision = (match, attendanceList = []) => {
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(true);
+  const [generationSeed, setGenerationSeed] = useState(0);
 
   // Estados derivados
   const isAdmin = userService.isAdmin(user);
@@ -163,105 +164,235 @@ export const useTeamDivision = (match, attendanceList = []) => {
   }, [user, isAdmin]);
 
   /**
-   * Gera divisão automática balanceada
+   * Shuffle array usando Fisher-Yates com seed para consistência
+   */
+  const shuffleWithSeed = useCallback((array, seed) => {
+    const shuffled = [...array];
+    let random = seed;
+
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      random = (random * 9301 + 49297) % 233280;
+      const j = Math.floor((random / 233280) * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    return shuffled;
+  }, []);
+
+  /**
+   * Agrupa jogadores por posição
+   */
+  const groupPlayersByPosition = useCallback((players) => {
+    const positions = {
+      Goleiro: [],
+      Defesa: [],
+      "Meio-Campo": [],
+      Ataque: [],
+      Lateral: [],
+    };
+
+    players.forEach((player) => {
+      const playerPositions = player.userData?.playing_positions || [];
+
+      // Se o jogador tem múltiplas posições, prioritiza na seguinte ordem:
+      // Goleiro > Defesa > Meio-Campo > Ataque > Lateral
+      const priorityOrder = [
+        "Goleiro",
+        "Defesa",
+        "Meio-Campo",
+        "Ataque",
+        "Lateral",
+      ];
+
+      let assignedPosition = null;
+      for (const priority of priorityOrder) {
+        if (playerPositions.includes(priority)) {
+          assignedPosition = priority;
+          break;
+        }
+      }
+
+      // Se não tem posição definida, coloca como Meio-Campo (posição versátil)
+      if (!assignedPosition) {
+        assignedPosition = "Meio-Campo";
+      }
+
+      positions[assignedPosition].push(player);
+    });
+
+    return positions;
+  }, []);
+
+  /**
+   * Distribui jogadores de uma posição entre os times de forma balanceada
+   */
+  const distributePositionPlayers = useCallback(
+    (players, teamBlack, teamWhite, seed) => {
+      if (players.length === 0) return;
+
+      // Ordena por score e adiciona pequena variação baseada no seed
+      const sortedPlayers = players.sort((a, b) => {
+        const scoreA = a.userData?.score || 0;
+        const scoreB = b.userData?.score || 0;
+
+        // Se scores são muito próximos (diferença <= 5), adiciona randomização
+        if (Math.abs(scoreA - scoreB) <= 5) {
+          const hashA = (a.userId.charCodeAt(0) * seed) % 100;
+          const hashB = (b.userId.charCodeAt(0) * seed) % 100;
+          return hashB - hashA;
+        }
+
+        return scoreB - scoreA;
+      });
+
+      // Cria pares de jogadores com scores similares quando possível
+      const pairs = [];
+      const remaining = [];
+
+      for (let i = 0; i < sortedPlayers.length - 1; i += 2) {
+        const player1 = sortedPlayers[i];
+        const player2 = sortedPlayers[i + 1];
+
+        const score1 = player1.userData?.score || 0;
+        const score2 = player2.userData?.score || 0;
+
+        // Se a diferença de score é pequena, forma um par
+        if (Math.abs(score1 - score2) <= 10) {
+          pairs.push([player1, player2]);
+        } else {
+          remaining.push(player1);
+          remaining.push(player2);
+        }
+      }
+
+      // Se sobrou um jogador ímpar
+      if (sortedPlayers.length % 2 === 1) {
+        remaining.push(sortedPlayers[sortedPlayers.length - 1]);
+      }
+
+      // Distribui os pares alternadamente entre os times
+      pairs.forEach((pair, index) => {
+        if ((index + seed) % 2 === 0) {
+          teamBlack.push(pair[0].userId);
+          teamWhite.push(pair[1].userId);
+        } else {
+          teamWhite.push(pair[0].userId);
+          teamBlack.push(pair[1].userId);
+        }
+      });
+
+      // Distribui jogadores restantes baseado no balanceamento dos times
+      remaining.forEach((player) => {
+        const blackCount = teamBlack.length;
+        const whiteCount = teamWhite.length;
+
+        // Calcula score atual dos times
+        const blackScore = teamBlack.reduce((sum, playerId) => {
+          const p = confirmedPlayers.find((cp) => cp.userId === playerId);
+          return sum + (p?.userData?.score || 0);
+        }, 0);
+
+        const whiteScore = teamWhite.reduce((sum, playerId) => {
+          const p = confirmedPlayers.find((cp) => cp.userId === playerId);
+          return sum + (p?.userData?.score || 0);
+        }, 0);
+
+        const playerScore = player.userData?.score || 0;
+
+        // Decide onde colocar baseado no balanceamento
+        if (blackCount < whiteCount) {
+          teamBlack.push(player.userId);
+        } else if (whiteCount < blackCount) {
+          teamWhite.push(player.userId);
+        } else {
+          // Times iguais, decide por score
+          const diffBlack = Math.abs(blackScore + playerScore - whiteScore);
+          const diffWhite = Math.abs(blackScore - (whiteScore + playerScore));
+
+          if (diffBlack <= diffWhite) {
+            teamBlack.push(player.userId);
+          } else {
+            teamWhite.push(player.userId);
+          }
+        }
+      });
+    },
+    [confirmedPlayers]
+  );
+
+  /**
+   * Gera divisão automática balanceada por posições
    */
   const generateBalancedDivision = useCallback(() => {
     if (confirmedPlayers.length === 0) return { teamBlack: [], teamWhite: [] };
 
-    // Separar jogadores por posição
-    const goalkeepers = confirmedPlayers.filter((p) =>
-      p.userData?.playing_positions?.includes("Goleiro")
-    );
-
-    const fieldPlayers = confirmedPlayers.filter(
-      (p) => !p.userData?.playing_positions?.includes("Goleiro")
-    );
-
-    // Ordenar jogadores por score (do maior para o menor)
-    const sortedGoalkeepers = goalkeepers.sort(
-      (a, b) => (b.userData?.score || 0) - (a.userData?.score || 0)
-    );
-
-    const sortedFieldPlayers = fieldPlayers.sort(
-      (a, b) => (b.userData?.score || 0) - (a.userData?.score || 0)
-    );
+    // Incrementa o seed para gerar variações diferentes
+    const currentSeed = generationSeed + 1;
+    setGenerationSeed(currentSeed);
 
     const teamBlack = [];
     const teamWhite = [];
 
-    // 1. Distribuir goleiros (SEMPRE um para cada lado se possível)
-    if (sortedGoalkeepers.length >= 2) {
-      // Se há 2 ou mais goleiros, distribui os 2 melhores
-      teamBlack.push(sortedGoalkeepers[0].userId);
-      teamWhite.push(sortedGoalkeepers[1].userId);
+    // Agrupa jogadores por posição
+    const playersByPosition = groupPlayersByPosition(confirmedPlayers);
 
-      // Se há mais goleiros, distribui alternadamente
-      for (let i = 2; i < sortedGoalkeepers.length; i++) {
-        if (teamBlack.length <= teamWhite.length) {
-          teamBlack.push(sortedGoalkeepers[i].userId);
-        } else {
-          teamWhite.push(sortedGoalkeepers[i].userId);
+    // Distribui jogadores por posição, priorizando goleiros
+    const positionOrder = [
+      "Goleiro",
+      "Defesa",
+      "Meio-Campo",
+      "Ataque",
+      "Lateral",
+    ];
+
+    positionOrder.forEach((position) => {
+      const positionPlayers = playersByPosition[position];
+
+      if (position === "Goleiro") {
+        // Tratamento especial para goleiros - sempre um para cada lado se possível
+        if (positionPlayers.length >= 2) {
+          const shuffledGK = shuffleWithSeed(positionPlayers, currentSeed);
+          teamBlack.push(shuffledGK[0].userId);
+          teamWhite.push(shuffledGK[1].userId);
+
+          // Distribui goleiros extras alternadamente
+          for (let i = 2; i < shuffledGK.length; i++) {
+            if (teamBlack.length <= teamWhite.length) {
+              teamBlack.push(shuffledGK[i].userId);
+            } else {
+              teamWhite.push(shuffledGK[i].userId);
+            }
+          }
+        } else if (positionPlayers.length === 1) {
+          // Um goleiro só - coloca no time preto por padrão
+          teamBlack.push(positionPlayers[0].userId);
         }
-      }
-    } else if (sortedGoalkeepers.length === 1) {
-      // Se há apenas 1 goleiro, coloca no time com menos jogadores
-      teamBlack.push(sortedGoalkeepers[0].userId);
-    }
-
-    // 2. Distribuir jogadores de linha por score balanceado
-    let teamBlackScore = teamBlack.reduce((sum, playerId) => {
-      const player = confirmedPlayers.find((p) => p.userId === playerId);
-      return sum + (player?.userData?.score || 0);
-    }, 0);
-
-    let teamWhiteScore = teamWhite.reduce((sum, playerId) => {
-      const player = confirmedPlayers.find((p) => p.userId === playerId);
-      return sum + (player?.userData?.score || 0);
-    }, 0);
-
-    // Distribuir jogadores de linha tentando balancear scores
-    for (const player of sortedFieldPlayers) {
-      const playerScore = player.userData?.score || 0;
-
-      // Calcular qual time ficaria mais balanceado com este jogador
-      const blackScoreWithPlayer = teamBlackScore + playerScore;
-      const whiteScoreWithPlayer = teamWhiteScore + playerScore;
-
-      // Verificar também o número de jogadores
-      const blackCount = teamBlack.length;
-      const whiteCount = teamWhite.length;
-
-      // Decisão de colocação baseada em:
-      // 1. Diferença de jogadores (não pode ter diferença maior que 1)
-      // 2. Balanceamento de score
-      if (blackCount < whiteCount) {
-        teamBlack.push(player.userId);
-        teamBlackScore = blackScoreWithPlayer;
-      } else if (whiteCount < blackCount) {
-        teamWhite.push(player.userId);
-        teamWhiteScore = whiteScoreWithPlayer;
       } else {
-        // Times com mesmo número de jogadores, decidir por score
-        const currentDiff = Math.abs(teamBlackScore - teamWhiteScore);
-        const diffWithPlayerInBlack = Math.abs(
-          blackScoreWithPlayer - teamWhiteScore
+        // Distribui outras posições de forma balanceada
+        distributePositionPlayers(
+          positionPlayers,
+          teamBlack,
+          teamWhite,
+          currentSeed
         );
-        const diffWithPlayerInWhite = Math.abs(
-          teamBlackScore - whiteScoreWithPlayer
-        );
-
-        if (diffWithPlayerInBlack <= diffWithPlayerInWhite) {
-          teamBlack.push(player.userId);
-          teamBlackScore = blackScoreWithPlayer;
-        } else {
-          teamWhite.push(player.userId);
-          teamWhiteScore = whiteScoreWithPlayer;
-        }
       }
-    }
+    });
 
     return { teamBlack, teamWhite };
-  }, [confirmedPlayers]);
+  }, [
+    confirmedPlayers,
+    generationSeed,
+    groupPlayersByPosition,
+    distributePositionPlayers,
+    shuffleWithSeed,
+  ]);
+
+  /**
+   * Reseta o seed de geração para voltar às primeiras variações
+   */
+  const resetGenerationSeed = useCallback(() => {
+    setGenerationSeed(0);
+  }, []);
 
   /**
    * Controla a exibição do formulário de criação
@@ -304,6 +435,7 @@ export const useTeamDivision = (match, attendanceList = []) => {
     // Utilitários
     canEditDivision,
     generateBalancedDivision,
+    resetGenerationSeed,
     canCreateDivision,
   };
 };
