@@ -1424,24 +1424,6 @@ export default function Financial() {
                             textTransform="uppercase"
                             letterSpacing="wide"
                           >
-                            Valor da Mensalidade
-                          </Text>
-                          <Text
-                            fontSize="lg"
-                            fontWeight="bold"
-                            color="blue.600"
-                          >
-                            R$ {monthlyFeeValue.toFixed(2)}
-                          </Text>
-                        </VStack>
-
-                        <VStack align="start" spacing={1}>
-                          <Text
-                            fontSize="xs"
-                            color="gray.600"
-                            textTransform="uppercase"
-                            letterSpacing="wide"
-                          >
                             Total Esperado
                           </Text>
                           <Text
@@ -1450,9 +1432,9 @@ export default function Financial() {
                             color="blue.600"
                           >
                             R${" "}
-                            {(
-                              getCurrentMonthPayments().length * monthlyFeeValue
-                            ).toFixed(2)}
+                            {getCurrentMonthPayments()
+                              .reduce((sum, p) => sum + (p.fee_value || 0), 0)
+                              .toFixed(2)}
                           </Text>
                         </VStack>
 
@@ -1471,10 +1453,10 @@ export default function Financial() {
                             color="green.600"
                           >
                             R${" "}
-                            {(
-                              getCurrentMonthPayments().filter((p) => p.is_paid)
-                                .length * monthlyFeeValue
-                            ).toFixed(2)}
+                            {getCurrentMonthPayments()
+                              .filter((p) => p.is_paid)
+                              .reduce((sum, p) => sum + (p.fee_value || 0), 0)
+                              .toFixed(2)}
                           </Text>
                         </VStack>
 
@@ -1493,11 +1475,10 @@ export default function Financial() {
                             color="orange.600"
                           >
                             R${" "}
-                            {(
-                              getCurrentMonthPayments().filter(
-                                (p) => !p.is_paid
-                              ).length * monthlyFeeValue
-                            ).toFixed(2)}
+                            {getCurrentMonthPayments()
+                              .filter((p) => !p.is_paid)
+                              .reduce((sum, p) => sum + (p.fee_value || 0), 0)
+                              .toFixed(2)}
                           </Text>
                         </VStack>
                       </Grid>
