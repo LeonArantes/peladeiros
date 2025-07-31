@@ -109,11 +109,7 @@ const Players = () => {
   const fetchPlayers = async () => {
     try {
       const allPlayers = await userService.findAll();
-      // Filtrar o usuário logado da lista
-      const otherPlayers = allPlayers.filter(
-        (player) => player.id !== currentUser?.id
-      );
-      setPlayers(otherPlayers);
+      setPlayers(allPlayers);
     } catch (error) {
       console.error(error);
     }
@@ -320,6 +316,7 @@ const Players = () => {
                 key={player.id}
                 player={player}
                 isMonthlyPayerUpToDate={isMonthlyPayerUpToDate(player.id)}
+                isCurrentUser={player.id === currentUser?.id}
               />
             ))}
 

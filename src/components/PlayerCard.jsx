@@ -17,7 +17,11 @@ import {
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
-const PlayerCard = ({ player, isMonthlyPayerUpToDate = false }) => {
+const PlayerCard = ({
+  player,
+  isMonthlyPayerUpToDate = false,
+  isCurrentUser = false,
+}) => {
   const navigate = useNavigate();
   const { isAdmin } = useAuth();
 
@@ -63,7 +67,9 @@ const PlayerCard = ({ player, isMonthlyPayerUpToDate = false }) => {
       borderColor="gray.200"
       boxShadow="sm"
       cursor="pointer"
-      onClick={() => navigate(`/player/${player?.id}`)}
+      onClick={() =>
+        navigate(isCurrentUser ? "/profile" : `/player/${player?.id}`)
+      }
       _hover={{
         boxShadow: "md",
         borderColor: "primary.200",
