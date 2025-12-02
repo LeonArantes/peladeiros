@@ -25,7 +25,37 @@ class PlayerStatsService {
       let gols_contra = 0;
       let gols_a_favor = 0;
 
-      // 1. Buscar todas as participações do jogador em team_division
+      // 1. Buscar TODOS os gols do jogador diretamente (como getGoalsRanking faz)
+      const goalsQuery = query(
+        collection(db, this.goalsCollection),
+        where("playerId", "==", playerId)
+      );
+      const goalsSnapshot = await getDocs(goalsQuery);
+
+      // Contar gols marcados e gols contra
+      const matchGoalsMap = new Map(); // Map<matchId, { favor: number, contra: number }>
+
+      goalsSnapshot.docs.forEach((goalDoc) => {
+        const goal = goalDoc.data();
+        const matchId = goal.matchId;
+
+        if (!matchGoalsMap.has(matchId)) {
+          matchGoalsMap.set(matchId, { favor: 0, contra: 0 });
+        }
+
+        const matchGoals = matchGoalsMap.get(matchId);
+
+        if (goal.type === "favor") {
+          gols_marcados++;
+          matchGoals.favor++;
+        } else if (goal.type === "contra") {
+          gols_contra++;
+          matchGoals.contra++;
+        }
+      });
+
+      // 2. Buscar todas as participações do jogador em team_division
+      // (necessário para calcular vitórias/derrotas/empates)
       const teamDivisionsSnapshot = await getDocs(
         collection(db, this.teamDivisionCollection)
       );
@@ -35,7 +65,6 @@ class PlayerStatsService {
         const data = doc.data();
         const matchId = data.matchId;
 
-        // Verificar se os arrays existem e são válidos
         const teamBlack = Array.isArray(data.teamBlack) ? data.teamBlack : [];
         const teamWhite = Array.isArray(data.teamWhite) ? data.teamWhite : [];
 
@@ -50,45 +79,31 @@ class PlayerStatsService {
 
       partidas_jogadas = userMatches.length;
 
-      if (partidas_jogadas === 0) {
-        return this.getEmptyStats();
-      }
-
-      // 2. Para cada partida, calcular estatísticas
+      // 3. Para cada partida onde o jogador participou, calcular vitória/derrota/empate
+      // E também calcular gols a favor do time
       for (const match of userMatches) {
         const { matchId, userTeam } = match;
 
-        // Buscar todos os gols da partida
-        const goalsQuery = query(
+        // Buscar todos os gols da partida para calcular placar
+        const matchGoalsQuery = query(
           collection(db, this.goalsCollection),
           where("matchId", "==", matchId)
         );
-        const goalsSnapshot = await getDocs(goalsQuery);
+        const matchGoalsSnapshot = await getDocs(matchGoalsQuery);
 
         let teamGoals = { black: 0, white: 0 };
 
-        for (const goalDoc of goalsSnapshot.docs) {
+        matchGoalsSnapshot.docs.forEach((goalDoc) => {
           const goal = goalDoc.data();
-          const isUser = goal.playerId === playerId;
-
-          // Gols do time
           if (goal.type === "favor") {
             teamGoals[goal.team]++;
-
-            // Gols marcados pelo usuário
-            if (isUser) gols_marcados++;
           }
+        });
 
-          // Gols contra
-          if (isUser && goal.type === "contra") {
-            gols_contra++;
-          }
-        }
-
-        // 3. Gols a favor do time do jogador
+        // Gols a favor do time do jogador
         gols_a_favor += teamGoals[userTeam];
 
-        // 4. Vitória / Derrota / Empate
+        // Vitória / Derrota / Empate
         const opponentTeam = userTeam === "black" ? "white" : "black";
 
         if (teamGoals[userTeam] > teamGoals[opponentTeam]) {
@@ -96,7 +111,6 @@ class PlayerStatsService {
         } else if (teamGoals[userTeam] < teamGoals[opponentTeam]) {
           partidas_perdidas++;
         } else {
-          // Empate
           partidas_empates++;
         }
       }
@@ -123,14 +137,14 @@ class PlayerStatsService {
           wins: partidas_vencidas,
           losses: partidas_perdidas,
           draws: partidas_empates,
-          matchDetails: [], // Podemos adicionar depois se necessário
+          matchDetails: [],
         },
         goals: {
           goalsFor: gols_marcados,
           goalsAgainst: gols_contra,
           teamGoalsFor: gols_a_favor,
           totalGoals: gols_marcados + gols_contra,
-          goals: [], // Podemos adicionar depois se necessário
+          goals: [],
         },
       };
     } catch (error) {
