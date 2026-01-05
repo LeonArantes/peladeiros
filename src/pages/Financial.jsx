@@ -117,10 +117,10 @@ export default function Financial() {
     ).padStart(2, "0")}`;
 
     // Se estamos em 2025, usar o mês atual, senão usar janeiro de 2025
-    if (now.getFullYear() === 2025) {
+    if (now.getFullYear() === 2026) {
       return currentMonth;
     } else {
-      return "2025-01"; // Default para janeiro de 2025 se não estivermos em 2025
+      return "2026-01"; // Default para janeiro de 2025 se não estivermos em 2025
     }
   };
 
@@ -394,7 +394,7 @@ export default function Financial() {
   const getAvailableMonths = () => {
     const months = [];
     for (let i = 1; i <= 12; i++) {
-      const monthStr = `2025-${String(i).padStart(2, "0")}`;
+      const monthStr = `2026-${String(i).padStart(2, "0")}`;
       months.push(monthStr);
     }
     return months;
